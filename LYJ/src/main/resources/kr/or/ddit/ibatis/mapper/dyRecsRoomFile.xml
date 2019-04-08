@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dyRecsRoomFile">
+	<typeAlias alias="DynmRecsroomFileVO" type="kr.or.ddit.vo.DynmRecsroomFileVO"/>
+	
+	<statement id="dyRecsRoomFileList" parameterClass="map" resultClass="DynmRecsroomFileVO">
+		select * 
+		from DYNM_RECSROOM_FILE 
+		where DYNM_RECSROOM_FILE_ID = #bo_id#
+	</statement>
+	
+	<insert id="insertdyRecsRoomFile" parameterClass="DynmRecsroomFileVO">
+		
+		INSERT INTO DYNM_RECSROOM_FILE
+			(	DYNM_RECSROOM_FILE_ID,
+				DYNM_RECSROOM_FILE_NM,
+				DYNM_RECSROOM_FILE_SAVE_NM,
+				DYNM_RECSROOM,
+				DYNM_RECSROOM_FILE_TY,
+				DYNM_RECSROOM_FILE_SIZE,
+				DYNM_RECSROOM_FILE_STTUS,
+				DYNM_RECSROOM_FILE_DATE,
+				DYNM_RECSROOM_FILE_INQUIRY
+			)
+		VALUES
+			(	'dyReF'||lpad(dynm_recsroom_file_seq.nextval,3,0),
+				#dynm_recsroom_file_nm#,
+				#dynm_recsroom_file_save_nm#,
+				#dynm_recsroom#,
+				#dynm_recsroom_file_ty#,
+				#dynm_recsroom_file_size#,
+				#dynm_recsroom_file_sttus#,
+				SYSDATE,
+				0
+				)	
+	</insert>
+	
+	<update id="updatedyRecsRoomFile" parameterClass="DynmRecsroomFileVO">
+		UPDATE DYNM_RECSROOM_FILE
+		SET 
+			DYNM_RECSROOM_FILE_NM=#dynm_recsroom_file_nm#,
+			DYNM_RECSROOM_FILE_SAVE_NM=#dynm_recsroom_file_save_nm#,
+			DYNM_RECSROOM=#dynm_recsroom#,
+			DYNM_RECSROOM_FILE_TY=#dynm_recsroom_file_ty#,
+			DYNM_RECSROOM_FILE_SIZE=#dynm_recsroom_file_size#
+		WHERE DYNM_RECSROOM_FILE_ID = #dynm_recsroom_file_id#
+	</update>
+	
+	<select id="dyRecsRoomFileInfo" parameterClass="map" resultClass="DynmRecsroomFileVO">
+		SELECT * 
+		  FROM DYNM_RECSROOM_FILE
+		 WHERE DYNM_RECSROOM = #bo_id#
+	</select>
+	
+	<select id="dyRecsRoomFileListSize" resultClass="int">
+		SELECT COUNT(*) FROM DYNM_RECSROOM_FILE
+	</select>
+</sqlMap>

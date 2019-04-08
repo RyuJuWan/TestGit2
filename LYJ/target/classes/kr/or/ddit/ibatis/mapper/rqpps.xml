@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="rqpps">
+	<typeAlias alias="rqppsVO" type="kr.or.ddit.vo.RqppsVO"/>
+	
+	<resultMap class="rqppsVO" id="rqppsMap">
+		<result property="rqpps_id" column="rqpps_id" />
+		<result property="rqpps_nm" column="rqpps_nm" />
+		<result property="rqpps_pblanc" column="rqpps_pblanc" />
+		<result property="rqpps_dmand" column="rqpps_dmand" />
+		<result property="rqpps_sanctn_line" column="rqpps_sanctn_line" />
+		<result property="rqpps_clos_date" column="rqpps_clos_date" />
+		<result property="rqpps_papers_ty" column="rqpps_papers_ty" />
+		<result property="rqpps_budget" column="rqpps_budget" />
+		<result property="rqpps_cn" column="rqpps_cn" />
+		<result property="rqpps_hnf_plan" column="rqpps_hnf_plan" />
+		<result property="rqpps_wrting_date" column="rqpps_wrting_date" />
+		<result property="rqpps_prjct_start" column="rqpps_prjct_start" />
+		<result property="rqpps_prjct_clos" column="rqpps_prjct_clos" />
+		<result property="rqpps_atchmn" column="rqpps_atchmn" />
+	</resultMap>
+	
+	
+	<sql id="searchCondition">
+		<dynamic prepend="WHERE">
+			<isNotEmpty property="search_keyword" open="(" close=")">
+				<isEqual property="search_keycode" compareValue="TOTAL">
+					   rqpps_nm like '%'||#search_keyword#||'%'
+					OR rqpps_cn like '%'||#search_keyword#||'%'
+					OR rqpps_empl like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="TITLE">
+					rqpps_nm like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="CONTENT">
+					rqpps_cn like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="WRITER">
+					rqpps_empl like '%'||#search_keyword#||'%'
+				</isEqual>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	<sql id="selectAll">
+		select * 
+		from rqpps
+	</sql>
+	
+	<select id="rqppsList" resultClass="rqppsVO" parameterClass="map">
+		select B.*
+		from(select ROWNUM rnum, A.*
+			from(<include refid="selectAll"/>
+				<include refid="searchCondition"/>) A) B
+				<dynamic>
+				<isNotEmpty property="startCount">
+				<![CDATA[
+			WHERE B.RNUM  <= #startCount# 
+	  		AND B.RNUM >= #endCount# 
+		]]>
+		</isNotEmpty>
+		</dynamic>
+				order by B.rnum DESC
+	</select>
+
+	<select id="totalCount" parameterClass="map" resultClass="int">
+		select count(rqpps_id)
+			from rqpps
+			<include refid="searchCondition"/>
+	</select>
+	
+	<insert id="insertRqpps" parameterClass="rqppsVO">
+		INSERT INTO RQPPS
+		(rqpps_id, rqpps_nm, rqpps_pblanc, rqpps_dmand, rqpps_sanctn_line,
+		 rqpps_clos_date, rqpps_papers_ty, rqpps_budget, rqpps_cn,
+		 rqpps_hnf_plan, rqpps_empl,
+		 rqpps_prjct_start, rqpps_prjct_clos, rqpps_atchmn, rqpps_wrting_date)
+		 values
+		 (#rqpps_id#, #rqpps_nm#, #rqpps_pblanc#, #rqpps_dmand#,
+		  #rqpps_sanctn_line#, #rqpps_clos_date#, #rqpps_papers_ty#,
+		  #rqpps_budget#, #rqpps_cn#, #rqpps_hnf_plan#, 
+		  #rqpps_empl#, #rqpps_prjct_start#,
+		  #rqpps_prjct_clos#, #rqpps_atchmn#, #rqpps_wrting_date#)
+	</insert>
+	
+	<select id="rqppsInfo" resultMap="rqppsMap" parameterClass="map">
+		<include refid="selectAll"/>
+		where rqpps_id = #rqpps_id#
+	</select>
+		
+	<update id="modifyRqpps" parameterClass="rqppsVO">
+		update rqpps
+			set
+				rqpps_nm = #rqpps_nm#,
+				rqpps_pblanc = #rqpps_pblanc#, rqpps_dmand = #rqpps_dmand#,
+				rqpps_sanctn_line = #rqpps_sanctn_line#, rqpps_clos_date = #rqpps_clos_date#,
+				rqpps_papers_ty = #rqpps_papers_ty#, rqpps_budget = #rqpps_budget#,
+				rqpps_hnf_plan = #rqpps_hnf_plan#, rqpps_prjct_start = #rqpps_prjct_start#,
+				rqpps_prjct_clos = #rqpps_prjct_clos#, rqpps_cn = #rqpps_cn#
+				where rqpps_id = #rqpps_id#
+	</update>	
+	<delete id="deleteRqpps" parameterClass="map">
+		delete from rqpps
+			where rqpps_id=#rqpps_id#
+	</delete>
+</sqlMap>
+
+
+
+
+
+
+
+
+
+
+

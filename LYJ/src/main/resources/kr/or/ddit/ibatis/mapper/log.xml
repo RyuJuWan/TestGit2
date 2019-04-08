@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="log">
+	<typeAlias alias="logVO" type="kr.or.ddit.vo.LogVO"/>
+	
+	<sql id="selectLogAll">
+		SELECT LOG_ID, LOG_PRJCT, LOG_CN, LOG_EMPL_ID, TO_CHAR(LOG_DATE, 'HH24:MI:SS') LOG_DATE
+		 FROM LOG
+	</sql>
+	
+	<select id="prjctLogList" parameterClass="map" resultClass="logVO">
+		<include refid="selectLogAll"/>
+		WHERE LOG_PRJCT = #prjct_id# 
+	</select>
+	
+	<delete id="deleteAllLog">
+		DELETE FROM LOG
+	</delete>
+	
+	<insert id="insertLog" parameterClass="map">
+		INSERT INTO LOG
+		 (LOG_ID, LOG_PRJCT, LOG_CN, LOG_EMPL_ID, LOG_DATE)
+		VALUES
+		 ('log'||lpad(LOG_SEQ.NEXTVAL,3,0), #prjct_id#, #log_cn#, #empl_id#, SYSDATE)
+	</insert>
+
+</sqlMap>

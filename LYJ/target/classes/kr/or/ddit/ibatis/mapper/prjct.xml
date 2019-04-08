@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="prjct">
+	<typeAlias alias="prjctVO" type="kr.or.ddit.vo.PrjctVO"/>
+	<resultMap class="PrjctVO" id="prjctMap">
+      <result property="prjct_id" column="prjct_id"/>
+      <result property="prjct_nm" column="prjct_nm"/>
+      <result property="prjct_inpt" column="prjct_inpt"/>
+      <result property="prjct_clos" column="prjct_clos"/>
+      <result property="prjct_nmbr" column="prjct_nmbr"/>
+      <result property="prjct_cn" column="prjct_cn"/>
+      <result property="prjct_prpsl" column="prjct_prpsl"/>
+      <result property="prjct_empl" column="prjct_empl"/>
+      <result property="prjct_wbs_num" column="prjct_wbs_num"/>
+   </resultMap>
+   
+   <statement id="prjctListHnf" resultClass="prjctVO">
+      SELECT * FROM PRJCT
+      WHERE PRJCT_ID = #hnf_inpt_prjct_id#
+   </statement>
+	
+	<sql id="selectPrjctAll">
+		SELECT * 
+		 FROM PRJCT
+	</sql>
+	
+	<select id="prjctList" resultClass="prjctVO">
+		<include refid="selectPrjctAll"/>
+	</select>
+	
+	<select id="currentPrjctList" resultClass="prjctVO">
+		<include refid="selectPrjctAll"/>
+		<![CDATA[
+			WHERE PRJCT_INPT <= SYSDATE
+			 AND SYSDATE <= PRJCT_CLOS
+		]]>
+	</select>
+	
+	<insert id="insertProject"  parameterClass="prjctVO">
+		INSERT INTO PRJCT
+		(	
+			PRJCT_ID    ,
+			PRJCT_NM    ,
+			PRJCT_INPT  ,
+			PRJCT_CLOS  ,
+			PRJCT_NMBR  ,
+			PRJCT_CN    ,
+			PRJCT_PRPSL ,
+			PRJCT_EMPL  ,
+			PRJCT_WBS_NUM
+		)
+		 VALUES
+		 (
+			'pj'||lpad(expndtr_anact_file_seq.nextval,3,0),
+			#prjct_nm#   ,
+			#prjct_inpt# ,
+			#prjct_clos# ,
+			#prjct_nmbr# ,
+			#prjct_cn#   ,
+			#prjct_prpsl#,
+			#prjct_empl#,
+			#prjct_wbs_num#
+		  )
+	</insert>
+	
+	<update id="updateProject" parameterClass="prjctVO" >
+		UPDATE PRJCT
+		SET 	
+			PRJCT_NM =#prjct_nm#,
+			PRJCT_INPT =#prjct_inpt#,
+			PRJCT_CLOS=#prjct_clos#   ,
+			PRJCT_NMBR=#prjct_nmbr#,
+			PRJCT_CN=#prjct_cn#,
+			PRJCT_PRPSL=#prjct_prpsl#,
+			PRJCT_WBS_NUM=#prjct_wbs_num#
+		WHERE  PRJCT_ID = #prjct_id#
+	</update>
+	
+	<select id="projectInfo" parameterClass="map" resultMap="prjctMap" > 
+		SELECT * FROM PRJCT
+		WHERE  PRJCT_ID = #prjct_id#
+	</select>
+</sqlMap>

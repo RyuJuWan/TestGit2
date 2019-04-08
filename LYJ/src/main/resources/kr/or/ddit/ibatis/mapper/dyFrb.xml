@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dyFrb">
+	<typeAlias alias="DyFrbVO" type="kr.or.ddit.vo.DynmFrbVO"/>
+		<resultMap class="DyFrbVO" id="frbMap">
+			<result property="dynm_frb_id" column="dynm_frb_id"/>
+			<result property="dynm_frb_nm" column="dynm_frb_nm"/>
+			<result property="dynm_frb_empl" column="dynm_frb_empl"/>
+			<result property="dynm_frb_cn" column="dynm_frb_cn"/>
+			<result property="dynm_frb_inquiry" column="dynm_frb_inquiry"/>
+			<result property="dynm_frb_date" column="dynm_frb_date"/>
+			<result property="prjct_id" column="prjct_id"/>
+		</resultMap>
+		
+	<sql id="searchCondition">
+		<dynamic prepend="AND">
+			<isNotEmpty property="search_keyword" open="(" close=")">
+				<isEqual property="search_keycode" compareValue="TOTAL">
+						dynm_frb_nm like '%'||#search_keyword#||'%'
+					OR dynm_frb_cn like '%'||#search_keyword#||'%'
+					OR dynm_frb_empl like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="TITLE">
+					dynm_frb_nm like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="CONTENT">
+					dynm_frb_cn like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="WRITER">
+					dynm_frb_empl like '%'||#search_keyword#||'%'
+				</isEqual>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+		
+	<sql id="selectAll">
+		select * from DYNM_FRB
+		where DYNM_FRB_DELETE='y'
+		
+	</sql>
+	
+	<select id="frbList" resultClass="DyFrbVO" parameterClass="map">
+		select B.*
+		from(select ROWNUM rnum, A.*
+			from(<include refid="selectAll"/>
+			
+				<include refid="searchCondition"/>
+				and PRJCT_ID=#prjct_id#
+				) A) B
+				<![CDATA[
+			WHERE B.RNUM  <= #startCount# 
+	  		AND B.RNUM >= #endCount# 
+		]]>
+				order by B.rnum DESC
+	</select>
+	
+	<select id="totalCount" parameterClass="map" resultClass="int">
+		select count(DYNM_FRB_ID)
+			from DYNM_FRB
+			where DYNM_FRB_DELETE='y' 
+			<include refid="searchCondition"/>
+	</select>
+	
+	<insert id="insertFrb" parameterClass="DyFrbVO">
+		INSERT INTO DYNM_FRB
+		(dynm_frb_id,
+			dynm_frb_nm,
+			dynm_frb_empl,
+			dynm_frb_cn,
+			dynm_frb_inquiry,
+			dynm_frb_date,
+			dynm_frb_delete,
+			prjct_id)
+		values
+		('dyfr'||lpad(dynm_frb_seq.nextval,3,0),
+		 	#dynm_frb_nm#,
+			#dynm_frb_empl#,
+			#dynm_frb_cn#,
+			0,
+			SYSDATE,
+			'y',
+			#prjct_id#)
+	</insert>
+	
+	<select id="frbInfo" resultMap="frbMap" parameterClass="map">
+		<include refid="selectAll"/>
+		and dynm_frb_id = #dynm_frb_id#
+	</select>
+	
+	<update id="modifyFrb" parameterClass="DyFrbVO">
+		update DYNM_FRB
+			set
+				dynm_frb_nm = #dynm_frb_nm#,
+				dynm_frb_cn = #dynm_frb_cn#
+				where dynm_frb_id = #dynm_frb_id#
+	</update>
+	
+	<update id="deleteFrb" parameterClass="map">
+		update DYNM_FRB
+			set
+			dynm_frb_delete = 'n'
+			where dynm_frb_id = #dynm_frb_id#
+	</update>
+	
+	<update id="frbView" parameterClass="map">
+		update DYNM_FRB
+		   set
+		   	   dynm_frb_inquiry = dynm_frb_inquiry+1
+		 WHERE dynm_frb_id = #dynm_frb_id#	
+	</update>
+</sqlMap>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

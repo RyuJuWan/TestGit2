@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mtg">
+	<typeAlias alias="mtgVO" type="kr.or.ddit.vo.MtgVO"/>
+	
+	<sql id="selectMtgAll">
+		SELECT *
+		 FROM MTG
+	</sql>
+	
+	<sql id="searchCondition">
+		<dynamic prepend="AND">
+			<isNotEmpty property="search_keyword" open="(" close=")">
+				<isEqual property="search_keycode" compareValue="TOTAL">
+					   mtg_nm like '%'||#search_keyword#||'%'
+					OR mtg_cn like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="TITLE">
+					   mtg_nm like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="CONTENT">
+					   mtg_nm like '%'||#search_keyword#||'%'
+				</isEqual>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	<select id="totalCount" parameterClass="map" resultClass="int">
+		SELECT COUNT(*)
+		 FROM MTG
+		WHERE MTG_PRJCT = #prjct_id#
+		<include refid="searchCondition"/>
+	</select>
+	
+	<select id="mtgPageList" parameterClass="map" resultClass="mtgVO">
+		SELECT B.*
+		 FROM(SELECT ROWNUM rnum, A.*
+		  FROM(<include refid="selectMtgAll"/> 
+		  	   WHERE 1=1
+		  	    <include refid="searchCondition"/>) A) B
+		<![CDATA[
+		WHERE B.RNUM <= #startCount#
+		 AND B.RNUM >= #endCount#
+		]]>
+		ORDER BY B.RNUM DESC
+	</select>
+	
+	<insert id="insertDy_mtg" parameterClass="mtgVO">
+		<selectKey keyProperty="mtg_id" resultClass="string">
+			SELECT 'mtg'||lpad(MTG_SEQ.NEXTVAL,3,0) FROM DUAL
+		</selectKey>
+			INSERT INTO MTG
+			 (MTG_ID, MTG_PRJCT, MTG_DT, MTG_NM, MTG_CN, MTG_VIDEO_ALT,
+			  MTG_PLACE, MTG_EMPL, MTG_DATE, MTG_SANCTN_ID)
+			 VALUES
+			  (#mtg_id#, #mtg_prjct#, #mtg_dt#, #mtg_nm#, #mtg_cn#, #mtg_video_alt#,
+			   #mtg_place#, #mtg_empl#, #mtg_date#, #mtg_sanctn_id#)
+	</insert>
+	
+	<select id="mtgView" parameterClass="map" resultClass="mtgVO">
+		<include refid="selectMtgAll"/>
+		WHERE MTG_ID = #mtg_id#
+	</select>
+	
+	<update id="updateDy_mtg" parameterClass="mtgVO">
+		UPDATE MTG
+		 SET MTG_NM = #mtg_nm#
+		   , MTG_CN = #mtg_cn#
+		   , MTG_VIDEO_ALT = #mtg_video_alt#
+		WHERE MTG_ID = #mtg_id#
+	</update>
+	
+	<delete id="deleteMtg" parameterClass="map">
+		DELETE FROM MTG
+		WHERE MTG_ID = #mtg_id#
+	</delete>
+</sqlMap>

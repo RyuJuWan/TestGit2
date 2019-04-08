@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="risk">
+	<typeAlias alias="emplVO" type="kr.or.ddit.vo.EmplVO"/>
+	<typeAlias alias="prjctVO" type="kr.or.ddit.vo.PrjctVO"/>
+	<typeAlias alias="riskVO" type="kr.or.ddit.vo.RiskVO"/>
+	<typeAlias alias="ipcrVO" type="kr.or.ddit.vo.IpcrVO"/>
+	<typeAlias alias="sttusVO" type="kr.or.ddit.vo.SttusVO"/>
+	
+	<resultMap class="riskVO" id="riskMap">
+		<result property="risk_id" column="risk_id"/>
+		<result property="risk_prjct" column="risk_prjct"/>
+		<result property="risk_nm" column="risk_nm"/>
+		<result property="risk_compt" column="risk_compt"/>
+		<result property="risk_regist_day" column="risk_regist_day"/>
+		<result property="risk_regist" column="risk_regist"/>
+		<result property="risk_chrg" column="risk_chrg"/>
+		<result property="risk_opetr_day" column="risk_opetr_day"/>
+		<result property="risk_cn" column="risk_cn"/>
+		<result property="risk_ipcr" column="risk_ipcr"/>
+		<result property="risk_sttus" column="risk_sttus"/>
+		<result property="risk_ipcrVO" column="risk_ipcr" select="ipcr.getIpcr_risk"/>
+		<result property="risk_sttusVO" column="risk_sttus" select="sttus.getSttus_risk"/>
+	</resultMap>
+	
+	<sql id="searchCondition">
+		<dynamic prepend="AND">
+			<isNotEmpty property="search_keyword" open="(" close=")">
+				<isEqual property="search_keycode" compareValue="TOTAL">
+			 		RISK_REGIST LIKE '%'||#search_keyword#||'%'
+			 		OR RISK_CHRG LIKE '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="CONTENT">
+					RISK_REGIST LIKE '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="WRITER">
+					RISK_CHRG LIKE '%'||#search_keyword#||'%'
+				</isEqual>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	<insert id="insertBoard" parameterClass="riskVO">
+		<selectKey keyProperty="risk_id" resultClass="string">
+	         SELECT 'risk'||lpad(risk_SEQ.NEXTVAL,3,0) FROM DUAL
+	    </selectKey>
+		INSERT INTO risk
+		(RISK_ID, RISK_PRJCT, RISK_NM, RISK_COMPT, RISK_REGIST, RISK_CHRG, RISK_OPETR_DAY, RISK_CN, RISK_IPCR, RISK_STTUS)
+		VALUES
+		(#risk_id#, #risk_prjct#, #risk_nm#, #risk_compt#, #risk_regist#, #risk_chrg#, #risk_opetr_day#, #risk_cn#, #risk_ipcr#, #risk_sttus#)
+	</insert>
+	
+	<update id="updateBoard" parameterClass="riskVO">
+		UPDATE RISK
+		SET RISK_NM = #risk_nm#,
+			RISK_REGIST_DAY = #risk_regist_day#,
+			RISK_OPETR_DAY = #risk_opetr_day#,
+			RISK_COMPT = #risk_compt#,
+			RISK_CHRG = #risk_chrg#,
+			RISK_CN = #risk_cn#,
+			RISK_IPCR = #risk_ipcr#,
+			RISK_STTUS = #risk_sttus#
+		WHERE RISK_ID = #risk_id#
+	</update>
+	
+	<select id="totalCount" parameterClass="map" resultClass="int">
+		SELECT COUNT(RISK_ID)
+		FROM RISK
+		WHERE 1=1
+		<include refid="searchCondition"/>
+	</select>
+	
+	<select id="boardList" resultMap="riskMap" parameterClass="map">
+		   select B.*
+		   from (select rownum rnum, A.*
+		      from (select * from risk
+		      	 where risk_prjct = #prjct_id#
+		         <include refid="searchCondition"/>
+		         order by risk_id desc) A) B
+		   <![CDATA[      
+		   where B.rnum <= #startCount# 
+		   and B.rnum >= #endCount#
+		   ]]>
+		   order by B.rnum desc
+	</select>
+	
+	<select id="boardViewInfo" resultMap="riskMap" parameterClass="map">
+		select * from risk
+		where risk_id = #risk_id#
+	</select>
+	
+	<select id="getPrjctName" parameterClass="map" resultClass="string">
+		select prjct_nm
+		from prjct
+		where prjct_id = #risk_prjct#
+	</select>
+	
+	<select id="getPrjctEmpl" parameterClass="map" resultClass="emplVO">
+		select A.*
+		from empl A, prjct_hist B
+		where B.prjct_hist_prjct = #risk_prjct#
+		and A.empl_id = B.prjct_hist_empl
+	</select>
+	
+	<select id="getAllIpcr" resultClass="ipcrVO">
+		select * from ipcr
+	</select>
+	
+	<select id="getAllSttus" resultClass="sttusVO">
+		select * from sttus
+	</select>
+	
+	<select id="selectSttueBoardList" parameterClass="map" resultMap="riskMap">
+		   select B.*
+		   from (select rownum rnum, A.*
+		      from (select * from risk
+		      	 where risk_prjct = #prjct_id# and risk_sttus = #risk_sttus#
+		         <include refid="searchCondition"/>
+		         order by risk_id desc) A) B
+		   <![CDATA[      
+		   where B.rnum <= #startCount# 
+		   and B.rnum >= #endCount#
+		   ]]>
+		   order by B.rnum desc
+	</select>
+	
+</sqlMap>

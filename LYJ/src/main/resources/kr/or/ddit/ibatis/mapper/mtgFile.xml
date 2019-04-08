@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mtgFile">
+	<typeAlias alias="mtgFileVO" type="kr.or.ddit.vo.MtgFileVO"/>
+	
+	<insert id="insertMtgFile" parameterClass="mtgFileVO">
+		<selectKey keyProperty="mtg_file_id">
+			SELECT MTG_FILE_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO MTG_FILE
+		 (MTG_FILE_ID, MTG_FILE_NM, MTG_FILE_SAVE_NM, MTG, MTG_FILE_TY,
+		  MTG_FILE_SIZE)
+		VALUES
+		 (#mtg_file_id#, #mtg_file_nm#, #mtg_file_save_nm#, #mtg#, #mtg_file_ty#,
+		  #mtg_file_size#)
+	</insert>
+	
+	<select id="fileItemInfo" parameterClass="map" resultClass="mtgFileVO">
+		SELECT *
+		 FROM MTG_FILE
+		WHERE MTG = #mtg_id#
+	</select>
+	
+	<update id="updateMtgFile" parameterClass="mtgFileVO">
+		UPDATE MTG_FILE
+		 SET MTG_FILE_NM = #mtg_file_nm#
+		   , MTG_FILE_SAVE_NM = #mtg_file_save_nm#
+		   , MTG_FILE_TY = #mtg_file_ty#
+		   , MTG_FILE_SIZE = #mtg_file_size#
+		WHERE MTG_FILE_ID = #mtg_file_id#
+	</update>
+	
+	<delete id="deleteMtgFile" parameterClass="map">
+		DELETE FROM MTG_FILE
+		WHERE MTG = #mtg_id#
+	</delete>
+</sqlMap>

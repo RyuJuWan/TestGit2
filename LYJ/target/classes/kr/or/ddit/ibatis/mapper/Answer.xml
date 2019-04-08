@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="answer">
+	<typeAlias alias="AnswerVO" type="kr.or.ddit.vo.AnswerVO"/>
+		
+	<sql id="selectAll">
+		select * from ANSWER
+		where ANSWER_DELETE='y'
+		
+	</sql>
+	
+	<select id="answList" resultClass="AnswerVO" parameterClass="map">
+		select B.*
+		from(select ROWNUM rnum, A.*
+			from(<include refid="selectAll"/>
+			
+				
+				) A) B
+				
+				order by B.rnum DESC
+	</select>
+	
+	
+	<insert id="insertAnsw" parameterClass="AnswerVO">
+		INSERT INTO ANSWER
+		(
+		ANSWER_ID,
+		ANSWER_CN,
+		ANSWER_GRP,
+		ANSWER_SEQ,
+		ANSWER_DEP,
+		ANSWER_DATE,
+		ANSWER_DELETE,
+		ANSWER_EMPL
+			)
+		values
+		('answ'||lpad(ANSWER_SEQ.nextval,3,0),
+		 	#answer_cn#,
+		#answer_grp#,
+		0,
+		0,
+		sysdate,
+		'y',
+		#answer_empl#)
+	</insert>
+	
+	<select id="answInfo" resultClass="AnswerVO" parameterClass="map">
+		<include refid="selectAll"/>
+		and ANSWER_ID = #answer_id#
+	</select>
+	
+	<update id="modifyAnsw" parameterClass="AnswerVO">
+		update ANSWER
+			set
+				ANSWER_CN = #answer_cn#
+				where ANSWER_ID = #answer_id#
+	</update>
+	
+	<update id="deleteAnsw" parameterClass="map">
+		update ANSWER
+			set
+			ANSWER_DELETE = 'n'
+			where ANSWER_ID = #answer_id#
+	</update>
+	
+</sqlMap>
+

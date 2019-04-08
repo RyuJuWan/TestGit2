@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="sttus">
+	<typeAlias alias="sttusVO" type="kr.or.ddit.vo.SttusVO"/>	
+	
+	<statement id="getSttus_issue" resultClass="sttusVO">
+		select * from sttus
+		where sttus_id = #issue_sttus#
+	</statement>
+	<statement id="getSttus_risk" resultClass="sttusVO">
+		select * from sttus
+		where sttus_id = #risk_sttus#
+	</statement>
+	<statement id="getSttus_flaw" resultClass="sttusVO">
+		select * from sttus
+		where sttus_id = #flaw_sttus#
+	</statement>
+	<statement id="getSttus_wbs" resultClass="sttusVO">
+		select * from sttus
+		where sttus_id = #wbs_progrs#
+	</statement>
+</sqlMap>

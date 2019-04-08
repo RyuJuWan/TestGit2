@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dyRecsRoom">
+	<typeAlias alias="DynmRecsroomVO" type="kr.or.ddit.vo.DynmRecsroomVO"/>
+	<typeAlias alias="prjctVO" type="kr.or.ddit.vo.PrjctVO"/>
+	<typeAlias alias="sanctnLineVO" type="kr.or.ddit.vo.SanctnLineVO"/>
+	<typeAlias alias="sanctnPapersTyVO" type="kr.or.ddit.vo.SanctnPapersTyVO"/>
+	
+	
+	<resultMap class="DynmRecsroomVO" id="RecsRoomMap">
+		<result property="dynm_recsroom_id" column="dynm_recsroom_id"/>
+		<result property="dynm_recsroom_nm" column="dynm_recsroom_nm"/>
+		<result property="dynm_recsroom_empl" column="dynm_recsroom_empl"/>
+		<result property="dynm_recsroom_cn" column="dynm_recsroom_cn"/>
+		<result property="dynm_recsroom_inquiry" column="dynm_recsroom_inquiry"/>
+		<result property="dynm_recsroom_date" column="dynm_recsroom_date"/>
+		<result property="dynm_recsroom_delete" column="dynm_recsroom_delete"/>
+		<result property="prjct_id" column="prjct_id"/>
+	</resultMap>
+	
+	<sql id="selectAll">
+		select *
+		from DYNM_RECSROOM
+		where DYNM_RECSROOM_DELETE='y'
+	</sql>
+	
+	<sql id="searchCondition">
+		<dynamic prepend="AND">
+			<isNotEmpty property="search_keyword" open="(" close=")">
+				<isEqual property="search_keycode" compareValue="TOTAL">
+					dynm_recsroom_nm like '%'||#search_keyword#||'%'
+					or dynm_recsroom_cn like '%'||#search_keyword#||'%'
+					or dynm_recsroom_empl like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="TITLE">
+					dynm_recsroom_nm like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="CONTENT">
+					dynm_recsroom_cn like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="WRITER">
+					dynm_recsroom_empl like '%'||#search_keyword#||'%'
+				</isEqual>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	<!-- 리스트 가져오기 -->
+	<select id="dyRecsRoomList" resultClass="DynmRecsroomVO"
+		parameterClass="map">
+		select B.*
+		from(select ROWNUM rnum, A.*
+			from(<include refid="selectAll" />
+			
+			 <include refid="searchCondition"/>) A) B
+		<![CDATA[
+			where B.rnum <= #startCount#
+				and B.rnum >= #endCount#
+		]]>
+		order by B.rnum DESC
+	</select>
+	
+	<select id="dyRecsRoomInfo" resultMap="RecsRoomMap" parameterClass="map">
+		<include refid="selectAll"/>
+		and DYNM_RECSROOM_ID = #dynm_recsroom_id#
+	</select>
+	
+	<select id="totalCount" parameterClass="map" resultClass="int">
+		select count(DYNM_RECSROOM_ID)
+			from DYNM_RECSROOM where 1=1
+		<include refid="searchCondition"/>
+	</select>
+	
+	
+	<update id="dyRecsRoomDelete" parameterClass="map">
+		update DYNM_RECSROOM
+			set
+			DYNM_RECSROOM_DELETE = 'n'
+			where DYNM_RECSROOM_ID=#dynm_recsroom_id#
+	</update>
+	
+	<update id="frbView" parameterClass="map">
+		update DYNM_RECSROOM
+		   set
+		   	   DYNM_RECSROOM_INQUIRY = DYNM_RECSROOM_INQUIRY+1
+		 where DYNM_RECSROOM_ID=#dynm_recsroom_id#	
+	</update>
+	
+	<insert id="dyRecsRoomInsert" parameterClass="DynmRecsroomVO">
+		<selectKey keyProperty="dynm_recsroom_id" resultClass="string">
+			SELECT 'dyRe'||lpad(DYNM_RECSROOM_FILE_SEQ.NEXTVAL,3,0) FROM DUAL
+		</selectKey>
+		INSERT INTO DYNM_RECSROOM
+		(	DYNM_RECSROOM_ID,
+			DYNM_RECSROOM_NM,
+			DYNM_RECSROOM_EMPL,
+			DYNM_RECSROOM_CN,
+			DYNM_RECSROOM_INQUIRY,
+			DYNM_RECSROOM_DATE,
+			DYNM_RECSROOM_DELETE,
+			PRJCT_ID
+		)
+		 values
+		 (
+		 	#dynm_recsroom_id#,
+			#dynm_recsroom_nm#,
+			#dynm_recsroom_empl#,
+			#dynm_recsroom_cn#,
+			0,
+			SYSDATE,
+			'y',
+			#prjct_id#
+		)
+	</insert>
+	<update id="dyRecsRoomModify" parameterClass="DynmRecsroomVO">
+		update DYNM_RECSROOM
+			set
+				DYNM_RECSROOM_NM=#dynm_recsroom_nm#,
+				DYNM_RECSROOM_CN=#dynm_recsroom_cn#
+			where DYNM_RECSROOM_ID = #dynm_recsroom_id#
+	</update>	
+
+	
+</sqlMap>

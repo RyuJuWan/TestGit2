@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="prjctHist">
+	<typeAlias alias="prjctHistVO" type="kr.or.ddit.vo.PrjctHistVO"/>
+	
+	<sql id="selectPrjctHistAll">
+		SELECT *
+		 FROM PRJCT_HIST
+	</sql>
+	
+	<select id="prjctHistList" parameterClass="map" resultClass="prjctHistVO">
+		<include refid="selectPrjctHistAll"/>
+		WHERE PRJCT_HIST_EMPL = #empl_id#
+	</select>
+	
+	<select id="totalCount" parameterClass="map" resultClass="int">
+		SELECT COUNT(PRJCT_HIST_ID)
+		 FROM PRJCT_HIST
+		WHERE PRJCT_HIST_EMPL = #empl_id#
+	</select>
+	
+	<select id="prjctHistPageList" parameterClass="map" resultClass="prjctHistVO">
+		SELECT B.*
+		 FROM(SELECT ROWNUM rnum, A.*
+		 	 FROM(<include refid="selectPrjctHistAll"/>
+		 	 	  WHERE PRJCT_HIST_EMPL = #empl_id#) A) B
+		<![CDATA[
+		WHERE B.RNUM <= #prjctHistStartCount#
+		 AND B.RNUM >= #prjctHistEndCount#
+		]]>
+		
+		ORDER BY B.RNUM DESC
+	</select>
+	
+	<insert id="insertPrjctHist" parameterClass="prjctHistVO">
+		<selectKey keyProperty="prjct_hist_id">
+			SELECT PRJCT_HIST_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO PRJCT_HIST
+		 (PRJCT_HIST_ID, PRJCT_HIST_EMPL, PRJCT_HIST_PRJCT, PRJCT_HIST_NM, PRJCT_HIST_INPT, PRJCT_HIST_CLOS, PRJCT_HIST_ROLE, PRJCT_HIST_PBLANC, PRJCT_HIST_DMAND)
+		VALUES 
+		 (#prjct_hist_id#, #prjct_hist_empl#, #prjct_hist_prjct#, #prjct_hist_nm#, #prjct_hist_inpt#, #prjct_hist_clos#, #prjct_hist_role#, #prjct_hist_pblanc#, #prjct_hist_dmand#)
+	</insert>
+	
+	<select id="prjctHistView" parameterClass="map" resultClass="prjctHistVO">
+		SELECT *
+		 FROM PRJCT_HIST
+		WHERE PRJCT_HIST_ID = #prjct_hist_id#
+	</select>
+	
+	<delete id="deletePrjctHist" parameterClass="map">
+		DELETE FROM PRJCT_HIST
+		WHERE PRJCT_HIST_ID = #prjct_hist_id#
+	</delete>
+	
+	<select id="prjctMemberList" parameterClass="map" resultClass="prjctHistVO">
+		SELECT * FROM PRJCT_HIST
+		WHERE PRJCT_HIST_PRJCT = #prjct_id#
+	</select>
+	
+</sqlMap>

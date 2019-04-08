@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="prpslFile">
+	<typeAlias alias="PrpslFileVO" type="kr.or.ddit.vo.PrpslFileVO"/>
+	
+	<statement id="prpslFileList" parameterClass="map" resultClass="PrpslFileVO">
+		select * from PRPSL_FILE where PRPSL_FILE_ID = #bo_id#
+	</statement>
+	
+	<insert id="insertPrpslFile" parameterClass="PrpslFileVO">
+		
+		INSERT INTO PRPSL_FILE
+			(	PRPSL_FILE_ID,
+				PRPSL_FILE_NM,
+				PRPSL_FILE_SAVE_NM,
+				PRPSL,
+				PRPSL_FILE_TY,
+				PRPSL_FILE_SIZE)
+		VALUES
+			(	'prF'||lpad(prpsl_file_seq.nextval,3,0),
+				#prpsl_file_nm#,
+				#prpsl_file_save_nm#,
+				#prpsl#,
+				#prpsl_file_ty#,
+				#prpsl_file_size#
+				)	
+	</insert>
+	
+	<update id="updatePrpslFile" parameterClass="PrpslFileVO">
+		UPDATE PRPSL_FILE
+		SET 
+			PRPSL_FILE_NM=#prpsl_file_nm#,
+			PRPSL_FILE_SAVE_NM=#prpsl_file_save_nm#,
+			PRPSL=#prpsl#,
+			PRPSL_FILE_TY=#prpsl_file_ty#,
+			PRPSL_FILE_SIZE=#prpsl_file_size#
+		WHERE PRPSL_FILE_ID = #prpsl_file_id#
+	</update>
+	
+	<select id="prpslFileInfo" parameterClass="map" resultClass="PrpslFileVO">
+		SELECT * 
+		  FROM PRPSL_FILE
+		 WHERE PRPSL = #bo_id#
+	</select>
+	
+	<select id="prpslFileListSize" resultClass="int">
+		SELECT COUNT(*) FROM PRPSL_FILE
+	</select>
+</sqlMap>

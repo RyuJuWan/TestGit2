@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="noticeFile">
+	<typeAlias alias="NoticeFileVO" type="kr.or.ddit.vo.NoticeFileVO"/>
+	
+	<statement id="noticeFileList" parameterClass="map" resultClass="NoticeFileVO">
+		SELECT * FROM NOTICE_FILE
+		WHERE NOTICE_FILE_ID = #bo_id#	
+	</statement>
+	
+	<insert id="insertNoticeFile" parameterClass="NoticeFileVO">
+		INSERT INTO NOTICE_FILE
+		(
+			NOTICE_FILE_ID       ,
+			NOTICE_FILE_NM       ,
+			NOTICE_FILE_SAVE_NM  ,
+			NOTICE               ,
+			NOTICE_FILE_TY       ,
+			NOTICE_FILE_SIZE
+		)
+		VALUES(
+			'noF'||lpad(expndtr_anact_file_seq.nextval,3,0),
+			#notice_file_nm#       ,
+			#notice_file_save_nm#  ,
+			#notice#               ,
+			#notice_file_ty#       ,
+			#notice_file_size#
+		)
+	</insert>
+	
+	<select id="noticeFileInfo" parameterClass="map" resultClass="NoticeFileVO">
+		SELECT * FROM NOTICE_FILE
+		WHERE NOTICE =#bo_id#
+	</select>
+	
+	<update id="updateNoticeFile" parameterClass="NoticeFileVO">
+			UPDATE NOTICE_FILE
+		SET 
+			NOTICE_FILE_NM = #notice_file_nm#     ,
+			NOTICE_FILE_SAVE_NM = #notice_file_save_nm#,
+			NOTICE=#notice#              ,
+			NOTICE_FILE_TY  =#notice_file_ty#    ,
+			NOTICE_FILE_SIZE=#notice_file_size#
+		WHERE NOTICE_FILE_ID = #notice_file_id#
+	</update>
+	
+	<select id="noticeFileListSize" resultClass="int">
+		SELECT COUNT(*) FROM NOTICE_FILE
+	</select>	
+	
+	
+	
+	
+
+</sqlMap>

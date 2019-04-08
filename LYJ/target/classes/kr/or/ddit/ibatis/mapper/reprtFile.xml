@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="reprtFile">
+	<typeAlias alias="reprtFileVO" type="kr.or.ddit.vo.ReprtFileVO"/>
+	
+	<insert id="insertReprtFile" parameterClass="reprtFileVO">
+		<selectKey keyProperty="reprt_file_id">
+			SELECT REPRT_FILE_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO REPRT_FILE
+		 (REPRT_FILE_ID, REPRT_FILE_NM, REPRT_FILE_SAVE_NM, REPRT, REPRT_FILE_TY,
+		  REPRT_FILE_SIZE)
+		VALUES
+		 (#reprt_file_id#, #reprt_file_nm#, #reprt_file_save_nm#, #reprt#, #reprt_file_ty#,
+		  #reprt_file_size#)
+	</insert>
+	
+	<select id="fileItemInfo" parameterClass="map" resultClass="reprtFileVO">
+		SELECT *
+		 FROM REPRT_FILE
+		WHERE REPRT = #reprt_id#
+	</select>
+	
+	<update id="updateReprtFile" parameterClass="reprtFileVO">
+		UPDATE REPRT_FILE
+		 SET REPRT_FILE_NM = #reprt_file_nm#
+		   , REPRT_FILE_SAVE_NM = #reprt_file_save_nm#
+		   , REPRT_FILE_TY = #reprt_file_ty#
+		   , REPRT_FILE_SIZE = #reprt_file_size#
+		WHERE REPRT_FILE_ID = #reprt_file_id#
+	</update>
+	
+	<delete id="deleteReprtFile" parameterClass="map">
+		DELETE FROM REPRT_FILE
+		WHERE REPRT = #reprt_id#
+	</delete>
+</sqlMap>

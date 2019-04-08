@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="hnfInpt">
+	<typeAlias alias="hnfInptVO" type="kr.or.ddit.vo.HnfInptVO"/>
+	<typeAlias alias="hnfInptPlanVO" type="kr.or.ddit.vo.HnfInptPlanVO"/>
+	<typeAlias alias="prjctVO" type="kr.or.ddit.vo.PrjctVO"/>
+	<typeAlias alias="prpslVO" type="kr.or.ddit.vo.PrpslVO"/>
+	<typeAlias alias="sanctnLineVO" type="kr.or.ddit.vo.SanctnLineVO"/>
+	<typeAlias alias="sanctnPapersTyVO" type="kr.or.ddit.vo.SanctnPapersTyVO"/>
+	
+	<resultMap class="hnfInptVO" id="hnfInptMap">
+<!-- 		<result property="rnum" column="rnum"/> -->
+		<result property="hnf_inpt_actpln_id" column="hnf_inpt_actpln_id"/>
+		<result property="hnf_inpt_plan_id" column="hnf_inpt_plan_id"/>
+		<result property="hnf_inpt_prjct_id" column="hnf_inpt_prjct_id"/>
+		<result property="hnf_inpt_actpln_prpsl" column="hnf_inpt_actpln_prpsl"/>
+		<result property="hnf_inpt_actpln_empl" column="hnf_inpt_actpln_empl"/>
+		<result property="hnf_inpt_actpln_date" column="hnf_inpt_actpln_date"/>
+		<result property="hnf_inpt_actpln_inpt" column="hnf_inpt_actpln_inpt"/>
+		<result property="hnf_inpt_actpln_clos" column="hnf_inpt_actpln_clos"/>
+		<result property="hnf_inpt_actpln_santn_id" column="hnf_inpt_actpln_santn_id"/>
+		<result property="hnf_specfpapers_ty_id" column="hnf_specfpapers_ty_id"/>
+		<result property="prjVO" column="hnf_inpt_prjct_id" select="prjct.prjctListHnf"/>
+	</resultMap>
+	
+	<select id="getAllHnfInpt" parameterClass="map" resultMap="hnfInptMap">
+		SELECT B.*
+		  FROM(SELECT ROWNUM rnum, A.*
+		   FROM(SELECT * FROM HNF_INPT_ACTPLN
+		   ORDER BY hnf_inpt_actpln_id)A)B
+		   
+	    <![CDATA[
+		  WHERE B.RNUM <= #startCount#
+		  AND B.RNUM >= #endCount#
+		]]>
+		ORDER BY B.RNUM DESC
+	</select>
+	
+	<select id="boardView" parameterClass="map" resultMap="hnfInptMap">
+		SELECT * 
+		FROM HNF_INPT_ACTPLN
+		WHERE HNF_INPT_ACTPLN_ID = #hnfID#
+	</select>
+	
+	<select id="totalCount" resultClass="int">
+		SELECT COUNT(hnf_inpt_actpln_id)
+		FROM HNF_INPT_ACTPLN
+	</select>
+	
+	<select id="totalCount_plan" resultClass="int">
+		SELECT COUNT(hnf_inpt_plan_id)
+		FROM HNF_INPT_PLAN
+	</select>
+	
+	<select id="getAllPrjct" resultClass="prjctVO">
+		SELECT PRJCT_ID, PRJCT_NM
+		FROM PRJCT
+	</select>
+	
+	<select id="getAllPrpsl" resultClass="prpslVO">
+		SELECT PRPSL_ID, PRPSL_NM
+		FROM PRPSL
+	</select>
+	
+	<select id="getAllSanctn_Line" resultClass="sanctnLineVO">
+		SELECT SANCTN_LINE_ID, SANCTN_LINE_NM
+		FROM SANCTN_LINE
+	</select>
+	
+	<select id="getAllSanctn_Papers_Ty" resultClass="sanctnPapersTyVO">
+		SELECT SANCTN_PAPERS_TY_ID, SANCTN_PAPERS_TY_NM
+		FROM SANCTN_PAPERS_TY
+	</select>
+	
+	<select id="getAllHnfInptPlanList" resultClass="hnfInptPlanVO">
+		SELECT * FROM HNF_INPT_PLAN
+	</select>
+	
+	<insert id="insertBoard" parameterClass="hnfInptVO">
+	<selectKey keyProperty="hnf_inpt_actpln_id" resultClass="string">
+         SELECT 'hnf'|| lpad(PRJCT_HIST_SEQ.NEXTVAL,3,0) FROM DUAL
+    </selectKey>
+		INSERT INTO HNF_INPT_ACTPLN
+			(HNF_INPT_ACTPLN_ID, HNF_INPT_PLAN_ID, HNF_INPT_PRJCT_ID, HNF_INPT_ACTPLN_PRPSL, HNF_INPT_ACTPLN_EMPL, HNF_INPT_ACTPLN_DATE,
+			 HNF_INPT_ACTPLN_INPT, HNF_INPT_ACTPLN_CLOS, HNF_INPT_ACTPLN_SANTN_ID, HNF_SPECFPAPERS_TY_ID)
+		VALUES
+		    (#hnf_inpt_actpln_id#, #hnf_inpt_plan_id#, #hnf_inpt_prjct_id#, #hnf_inpt_actpln_prpsl#, #hnf_inpt_actpln_empl#, #hnf_inpt_actpln_date#,
+			 #hnf_inpt_actpln_inpt#, #hnf_inpt_actpln_clos#, #hnf_inpt_actpln_santn_id#, #hnf_specfpapers_ty_id#)
+	</insert> 
+	<select id="getPrjctName" parameterClass="map" resultClass="string">
+		SELECT PRJCT_NM
+		  FROM PRJCT
+		 WHERE PRJCT_ID = #hnf_inpt_prjct_id#
+	</select>
+	
+	<update id="updateBoard" parameterClass="hnfInptVO">
+		UPDATE HNF_INPT_ACTPLN
+		SET HNF_INPT_ACTPLN_INPT = #hnf_inpt_actpln_inpt#,
+			HNF_INPT_ACTPLN_CLOS = #hnf_inpt_actpln_clos#
+		WHERE HNF_INPT_ACTPLN_ID = #hnf_inpt_actpln_id#
+	</update>
+</sqlMap>

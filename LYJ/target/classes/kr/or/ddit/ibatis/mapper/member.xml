@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="member">
+	<typeAlias alias="adminVO" type="kr.or.ddit.vo.AdminVO"/>
+	<typeAlias alias="emplVO" type="kr.or.ddit.vo.EmplVO"/>
+	
+	<sql id="selectAdminAll">
+		SELECT *
+		 FROM ADMIN
+	</sql>
+	
+	<sql id="selectEmplAll">
+		SELECT *
+		 FROM EMPL
+	</sql>
+	
+	<select id="adminInfo" parameterClass="map" resultClass="adminVO">
+		<include refid="selectAdminAll"/>
+		WHERE ADMIN_ID = #admin_id#
+		<dynamic>
+			<isNotEmpty property="admin_pass">
+				AND ADMIN_PASS = #admin_pass#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<select id="emplList" resultClass="emplVO">
+		SELECT B.*
+		 FROM(SELECT ROWNUM rnum, A.*
+		 	 FROM(<include refid="selectEmplAll"/>
+		 	      ) A) B
+		ORDER BY B.RNUM ASC
+	</select>
+	
+	<select id="emplInfo" parameterClass="map" resultClass="emplVO">
+		<include refid="selectEmplAll"/>
+		WHERE EMPL_ID = #empl_id#
+		<dynamic>
+			<isNotEmpty property="empl_nm">
+				AND EMPL_NM = #empl_nm#
+			</isNotEmpty>
+			<isNotEmpty property="empl_pass">
+				AND EMPL_PASS = #empl_pass#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<update id="updateEmplInfo" parameterClass="emplVO">
+		UPDATE EMPL
+		 SET EMPL_NM = #empl_nm#
+		   , EMPL_MAIL = #empl_mail#
+		   , EMPL_BIR = #empl_bir#
+		   , EMPL_PASS = #empl_pass#
+		   , EMPL_DEPT = #empl_dept#
+		   , EMPL_ADD1 = #empl_add1#
+		   , EMPL_ADD2 = #empl_add2#
+		   , EMPL_ZIP = #empl_zip#
+		   , EMPL_ECNY = #empl_ecny#
+		   , EMPL_OFCPS = #empl_ofcps#
+		   , EMPL_SEXDSTN = #empl_sexdstn#
+		   , EMPL_HP = #empl_hp#
+		   , EMPL_LEVEL = #empl_level#
+		WHERE EMPL_ID = #empl_id# 
+	</update>
+	
+	<select id="totalCount" parameterClass="map" resultClass="int">
+		SELECT COUNT(EMPL_ID)
+		 FROM EMPL
+		<dynamic>
+		 	<isNotEmpty property="empl_dept">
+		 		WHERE EMPL_DEPT = #empl_dept#
+		 	</isNotEmpty>
+		 </dynamic>
+	</select>
+	
+	<select id="emplPageList" parameterClass="map" resultClass="emplVO">
+		SELECT B.*
+		 FROM(SELECT ROWNUM rnum, A.*
+		 	 FROM(<include refid="selectEmplAll"/>
+		 	      <dynamic>
+		 	      	<isNotEmpty property="empl_dept">
+				 		WHERE EMPL_DEPT = #empl_dept#
+				 	</isNotEmpty>
+		 	      </dynamic>) A) B
+		<![CDATA[
+		WHERE B.RNUM <= #emplStartCount#
+		 AND B.RNUM >= #emplEndCount#
+		]]>
+		ORDER BY B.RNUM DESC
+	</select>
+	
+	<insert id="insertEmpl" parameterClass="emplVO">
+		INSERT INTO EMPL
+		 (EMPL_ID, EMPL_NM, EMPL_PASS, EMPL_MAIL)
+		VALUES
+		 (#empl_id#, #empl_nm#, #empl_pass#, #empl_mail#)
+	</insert>
+	
+	<select id="selectDeptEmpl" resultClass="emplVO" parameterClass="map">
+		select * from empl
+		<dynamic>
+			<isNotEmpty property="empl_dept">
+				where EMPL_DEPT = #empl_dept#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<select id="selectPrjctEmpl" resultClass="emplVO" parameterClass="map">
+		select * 
+		from prjct_hist h inner join empl e
+		on(h.prjct_hist_empl = e.empl_id) ;
+	</select>
+	
+	
+</sqlMap>

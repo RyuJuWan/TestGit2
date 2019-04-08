@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="qna">
+   <typeAlias alias="qnaVO" type="kr.or.ddit.vo.QnaVO"/>
+   
+   <resultMap class="qnaVO" id="qnaMap">
+      <result property="qna_id" column="qna_id"/>
+      <result property="qna_nm" column="qna_nm"/>
+      <result property="qna_empl" column="qna_empl"/>
+      <result property="qna_cn" column="qna_cn"/>
+      <result property="qna_view" column="qna_view"/>
+      <result property="qna_day" column="qna_day"/>
+      <result property="qna_pass" column="qna_pass"/>
+      <result property="qna_grp" column="qna_grp"/>
+      <result property="qna_seq" column="qna_seq"/>
+      <result property="qna_dep" column="qna_dep"/>
+      <result property="qna_delete" column="qna_delete"/>
+   </resultMap>
+   
+   
+   <sql id="searchCondition">
+      <dynamic prepend="AND">
+         <isNotEmpty property="search_keyword" open="(" close=")">
+            <isEqual property="search_keycode" compareValue="TOTAL">
+                  qna_nm like '%'||#search_keyword#||'%'
+               OR qna_cn like '%'||#search_keyword#||'%'
+               OR qna_empl like '%'||#search_keyword#||'%'
+            </isEqual>
+            <isEqual property="search_keycode" compareValue="TITLE">
+               qna_nm like '%'||#search_keyword#||'%'
+            </isEqual>
+            <isEqual property="search_keycode" compareValue="CONTENT">
+               qna_cn like '%'||#search_keyword#||'%'
+            </isEqual>
+            <isEqual property="search_keycode" compareValue="WRITER">
+               qna_empl like '%'||#search_keyword#||'%'
+            </isEqual>
+         </isNotEmpty>
+      </dynamic>
+   </sql>
+   
+   <sql id="selectAll">
+      select * from qna
+      where qna_delete = 'y'
+   </sql>
+   
+   <select id="qnaList" resultClass="qnaVO" parameterClass="map">
+      select B.*
+      from(select ROWNUM rnum, A.*
+         from(<include refid="selectAll"/>
+            <include refid="searchCondition"/>
+            order by qna_grp, qna_seq ASC) A) B
+            <dynamic>
+				<isNotEmpty property="startCount">
+            <![CDATA[
+			WHERE B.RNUM  <= #startCount# 
+	  		AND B.RNUM >= #endCount# 
+		]]>
+		</isNotEmpty>
+		</dynamic>
+      order by B.rnum ASC
+   </select>
+   
+   <select id="totalCount" parameterClass="map" resultClass="int">
+      select count(qna_id)
+         from qna
+         where 1=1
+         <include refid="searchCondition"/>
+   </select>
+
+   <select id="qnaInfo" resultMap="qnaMap" parameterClass="map">
+      <include refid="selectAll"/>
+      and qna_id = #qna_id#
+   </select>
+   
+   <insert id="insertQna" parameterClass="qnaVO">
+      insert into qna
+         (qna_id, qna_nm, qna_empl, qna_cn, qna_day,
+         qna_pass, qna_grp)
+      values
+         ('qna'||lpad(qna_seq.nextval,3,0), #qna_nm#, #qna_empl#, #qna_cn#, 
+         #qna_day#, #qna_pass#, #qna_id#)
+   
+   </insert>
+   
+   <update id="modifyQna" parameterClass="qnaVO">
+      update qna
+         set
+            qna_nm = #qna_nm#,
+            qna_empl = #qna_empl#,
+            qna_cn = #qna_cn#
+         where qna_id = #qna_id#
+   </update>
+   
+   <update id="deleteQna" parameterClass="map">
+      update qna
+         set
+            qna_delete = 'n'
+            where qna_id = #qna_id#
+   </update>
+   
+      <select id="incrementSeq" parameterClass="qnaVO" resultClass="String">
+      select qna_id
+         from qna
+      where qna_grp = #qna_grp#
+   </select>
+   
+   <update id="updateSeq" parameterClass="qnaVO">
+      update qna
+         set qna_seq = qna_seq + 1
+      where qna_grp = #qna_grp#
+   </update>
+   
+   <insert id="insertQnaReply" parameterClass="qnaVO">
+   <selectKey keyProperty="qna_id">
+         select qna_seq.nextval from dual
+   </selectKey>
+         insert into qna
+         (qna_id, qna_nm, qna_cn, qna_pass, qna_day, qna_seq, qna_dep, qna_delete,
+         qna_grp)
+         values
+         (#qna_id#, #qna_nm#, #qna_cn#, 
+         #qna_pass#, #qna_day#, '0', '1', 'y', #qna_grp#)
+   </insert>
+   
+   <select id="groupCount" parameterClass="map" resultClass="int">
+         select count(*)
+            from qna where qna_grp = #qna_grp#
+            and qna_delete = 'y'
+   </select>
+   
+   <update id="qnaView" parameterClass="map">
+         update qna
+            set qna_view = qna_view+1
+            where qna_id = #qna_id#
+   </update>
+   
+</sqlMap>
+
+
+
+
+
+
+
+
+
+

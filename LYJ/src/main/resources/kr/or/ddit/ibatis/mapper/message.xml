@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="message">
+	<typeAlias alias="MessageVO" type="kr.or.ddit.vo.MessageVO"/>
+	<typeAlias alias="EmplVO" type="kr.or.ddit.vo.EmplVO"/>
+	
+	
+	<sql id="selectAll">
+		select *
+		from Message
+		
+	</sql>
+
+	<!-- 리스트 가져오기 -->
+	<select id="messageList" resultClass="MessageVO" parameterClass="map">
+		
+		<include refid="selectAll" />
+		where MESSAGE_RCVER = #issue_chrg#
+		and MESSAGE_REDNG ='y'
+		
+	</select>
+	<select id="messageIssueCount" resultClass="String" parameterClass="map">
+		select count(*)
+		from Message
+		where message_rcver =#issue_chrg#
+		and MESSAGE_NM='이슈'
+		and MESSAGE_REDNG ='y'
+	</select>
+	<select id="messageWbsCount" resultClass="String" parameterClass="map">
+		select count(*)
+		from Message
+		where message_rcver =#issue_chrg#
+		and MESSAGE_NM='일감'
+		and MESSAGE_REDNG ='y'
+	</select>
+	
+	<select id="messageInfo" resultClass="MessageVO" parameterClass="map">
+		<include refid="selectAll"/>
+		where MESSAGE_RCVER = #issue_chrg#
+		and MESSAGE_REDNG ='y'
+		and MESSAGE_ID=#message_id#
+	</select>
+	
+	<update id="messageDelete" parameterClass="map">
+		update MESSAGE
+		set MESSAGE_REDNG ='n'
+		where MESSAGE_CN=#message_cn#
+	</update>
+	
+	
+	<insert id="messageInsert" parameterClass="MessageVO">
+		INSERT INTO message
+		(	MESSAGE_ID,
+			MESSAGE_NM,
+			MESSAGE_CN,
+			MESSAGE_DATE,
+			MESSAGE_RCVER,
+			MESSAGE_REDNG
+		)
+		 values
+		 (	'me'||lpad(MESSAGE_SEQ.nextval,3,0),
+			#message_nm#,
+			#message_cn#,
+			SYSDATE,
+			#message_rcver#,
+			'y'
+		)
+	</insert>
+</sqlMap>

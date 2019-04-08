@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="pblanc">
+   <typeAlias alias="PblancVO" type="kr.or.ddit.vo.PblancVO"/>
+   
+
+   
+   <sql id="selectAll">
+      select *
+      from pblanc
+   </sql>
+   
+   <sql id="searchCondition">
+      <dynamic prepend="WHERE">
+         <isNotEmpty property="search_keyword" open="(" close=")">
+            <isEqual property="search_keycode" compareValue="TOTAL">
+               pblanc_nm like '%'||#search_keyword#||'%'
+               or pblanc_instt like '%'||#search_keyword#||'%'
+            </isEqual>
+            <isEqual property="search_keycode" compareValue="TITLE">
+               pblanc_nm like '%'||#search_keyword#||'%'
+            </isEqual>
+            <isEqual property="search_keycode" compareValue="WRITER">
+               pblanc_instt like '%'||#search_keyword#||'%'
+            </isEqual>
+         </isNotEmpty>
+      </dynamic>
+   </sql>
+
+   <!-- 리스트 가져오기 -->
+   <select id="pblancList" resultClass="PblancVO"
+      parameterClass="map">
+      select B.*
+      from(select ROWNUM rnum, A.*
+         from(<include refid="selectAll" />
+          <include refid="searchCondition"/>) A) B
+      <![CDATA[
+         where B.rnum <= #startCount#
+            and B.rnum >= #endCount#
+      ]]>
+      order by B.rnum DESC
+   </select>
+   
+   <select id="pblancInfo" resultClass="PblancVO" parameterClass="map">
+      <include refid="selectAll"/>
+      where pblanc_id = #pblanc_id#
+   </select>
+   
+   <select id="totalCount" parameterClass="map" resultClass="int">
+      select count(pblanc_id)
+         from pblanc
+      <include refid="searchCondition"/>
+   </select>
+   <insert id="pblancInsert" parameterClass="pblancVO">
+      INSERT INTO pblanc
+      (   pblanc_id,
+         pblanc_nm,
+         pblanc_instt,
+         pblanc_link,
+         pblanc_budget,
+         pblanc_clos,
+         pblanc_bid
+      )
+       
+       values
+       (   'pbl'||lpad(pblanc_seq.nextval,3,0),
+         #pblanc_nm#,
+         #pblanc_instt#,
+         #pblanc_link#,
+         #pblanc_budget#,
+         #pblanc_clos#,
+         #pblanc_bid#
+      )
+   </insert>
+   
+</sqlMap>

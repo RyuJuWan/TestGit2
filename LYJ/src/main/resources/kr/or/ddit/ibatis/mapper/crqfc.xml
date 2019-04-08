@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="crqfc">
+	<typeAlias alias="crqfcVO" type="kr.or.ddit.vo.CrqfcVO"/>
+	<typeAlias alias="crqfcHoldVO" type="kr.or.ddit.vo.CrqfcHoldVO"/>
+	
+	<sql id="selectCrqfcAll">
+		SELECT *
+		 FROM CRQFC
+	</sql>
+	
+	<sql id="selectCrqfcHoldAll">
+		SELECT *
+		 FROM CRQFC_HOLD
+	</sql>
+	
+	<select id="crqfcList" resultClass="crqfcVO">
+		<include refid="selectCrqfcAll"/>	
+	</select>
+	
+	<select id="crqfcHoldList" parameterClass="map" resultClass="crqfcHoldVO">
+		<include refid="selectCrqfcHoldAll"/>
+		<dynamic>
+		 	<isNotEmpty property="empl_id">
+		 		WHERE CRQFC_HOLD_EMPL = #empl_id#
+		 	</isNotEmpty>
+		 </dynamic>
+	</select>
+	
+	<select id="crqfcHoldPageList" parameterClass="map" resultClass="crqfcHoldVO">
+		SELECT B.*
+		 FROM(SELECT ROWNUM rnum, A.*
+			 FROM(<include refid="selectCrqfcHoldAll"/>
+			 	  WHERE CRQFC_HOLD_EMPL = #empl_id#) A) B
+		<![CDATA[
+		WHERE B.RNUM <= #crqfcStartCount#
+		 AND B.RNUM >= #crqfcEndCount#
+		]]>
+		ORDER BY B.RNUM DESC
+	</select>
+	
+	<select id="totalCount" parameterClass="map" resultClass="int">
+		SELECT COUNT(CRQFC_HOLD_EMPL)
+		 FROM CRQFC_HOLD
+		WHERE CRQFC_HOLD_EMPL = #empl_id#
+	</select>
+	
+	<insert id="insertCrqfcHold" parameterClass="crqfcHoldVO">
+		INSERT INTO CRQFC_HOLD
+		 (CRQFC_HOLD_EMPL, CRQFC_HOLD_CRQFC)
+		VALUES(#crqfc_hold_empl#, #crqfc_hold_crqfc#)
+	</insert>
+	
+	<delete id="deleteCrqfcHold" parameterClass="crqfcHoldVO">
+		DELETE FROM CRQFC_HOLD
+		WHERE CRQFC_HOLD_EMPL = #crqfc_hold_empl#
+		 AND CRQFC_HOLD_CRQFC = #crqfc_hold_crqfc#
+	</delete>
+
+</sqlMap>

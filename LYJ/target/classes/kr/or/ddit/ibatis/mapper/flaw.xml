@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="flaw">
+	<typeAlias alias="emplVO" type="kr.or.ddit.vo.EmplVO"/>
+	<typeAlias alias="prjctVO" type="kr.or.ddit.vo.PrjctVO"/>
+	<typeAlias alias="flawVO" type="kr.or.ddit.vo.FlawVO"/>
+	<typeAlias alias="ipcrVO" type="kr.or.ddit.vo.IpcrVO"/>
+	<typeAlias alias="sttusVO" type="kr.or.ddit.vo.SttusVO"/>
+	
+	<resultMap class="flawVO" id="flawMap">
+		<result property="rnum" column="rnum"/>
+		<result property="flaw_id" column="flaw_id"/>
+		<result property="flaw_prjct" column="flaw_prjct"/>
+		<result property="flaw_nm" column="flaw_nm"/>
+		<result property="flaw_compt" column="flaw_compt"/>
+		<result property="flaw_regist_day" column="flaw_regist_day"/>
+		<result property="flaw_regist" column="flaw_regist"/>
+		<result property="flaw_chrg" column="flaw_chrg"/>
+		<result property="flaw_opetr_day" column="flaw_opetr_day"/>
+		<result property="flaw_cn" column="flaw_cn"/>
+		<result property="flaw_ipcr" column="flaw_ipcr"/>
+		<result property="flaw_sttus" column="flaw_sttus"/>
+		<result property="flaw_ipcrVO" column="flaw_ipcr" select="ipcr.getIpcr_flaw"/>
+		<result property="flaw_sttusVO" column="flaw_sttus" select="sttus.getSttus_flaw"/>
+	</resultMap>
+	
+	<sql id="searchCondition">
+		<dynamic prepend="AND">
+			<isNotEmpty property="search_keyword" open="(" close=")">
+				<isEqual property="search_keycode" compareValue="TOTAL">
+			 		FLAW_REGIST LIKE '%'||#search_keyword#||'%'
+			 		OR FLAW_CHRG LIKE '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="CONTENT">
+					FLAW_REGIST LIKE '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="WRITER">
+					FLAW_CHRG LIKE '%'||#search_keyword#||'%'
+				</isEqual>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	<insert id="insertBoard" parameterClass="flawVO">
+		<selectKey keyProperty="flaw_id" resultClass="string">
+	         SELECT 'flaw'||lpad(FLAW_SEQ.NEXTVAL,3,0) FROM DUAL
+	    </selectKey>
+		INSERT INTO flaw
+		(FLAW_ID, FLAW_PRJCT, FLAW_NM, FLAW_CN, FLAW_COMPT, FLAW_OPETR_DAY, FLAW_CHRG, FLAW_REGIST, FLAW_IPCR, FLAW_STTUS)
+		VALUES
+		(#flaw_id#, #flaw_prjct#, #flaw_nm#, #flaw_cn#, #flaw_compt#, #flaw_opetr_day#, #flaw_chrg#,  #flaw_regist#, #flaw_ipcr#, #flaw_sttus#)
+	</insert>
+	
+	<update id="updateBoard" parameterClass="flawVO">
+		UPDATE FLAW
+		SET FLAW_NM = #flaw_nm#,
+			FLAW_REGIST_DAY = #flaw_regist_day#,
+			FLAW_OPETR_DAY = #flaw_opetr_day#,
+			FLAW_COMPT = #flaw_compt#,
+			FLAW_CHRG = #flaw_chrg#,
+			FLAW_CN = #flaw_cn#,
+			FLAW_IPCR = #flaw_ipcr#,
+			FLAW_STTUS = #flaw_sttus#
+		WHERE FLAW_ID = #flaw_id#
+	</update>
+	
+	<select id="totalCount" parameterClass="map" resultClass="int">
+		SELECT COUNT(FLAW_ID)
+		FROM FLAW
+		WHERE 1=1
+		<include refid="searchCondition"/>
+	</select>
+	
+	<select id="flawSttusCount" parameterClass="map" resultClass="int">
+		SELECT COUNT(FLAW_ID)
+		FROM FLAW
+		WHERE FLAW_STTUS = #flaw_sttus#
+	</select>
+	
+	<select id="boardList" resultMap="flawMap" parameterClass="map">
+		   select B.*
+		   from (select rownum rnum, A.*
+		      from (select * from flaw
+		      	 where flaw_prjct = #prjct_id#
+		         <include refid="searchCondition"/>
+		         order by flaw_id desc) A) B
+		   <![CDATA[      
+		   where B.rnum <= #startCount# 
+		   and B.rnum >= #endCount#
+		   ]]>
+		   order by B.rnum desc
+	</select>
+	
+	<select id="boardViewInfo" resultMap="flawMap" parameterClass="map">
+		select * from flaw
+		where flaw_id = #flaw_id#
+	</select>
+	
+	<select id="getPrjctName" parameterClass="map" resultClass="string">
+		select prjct_nm
+		from prjct
+		where prjct_id = #flaw_prjct#
+	</select>
+	
+	<select id="getPrjctEmpl" parameterClass="map" resultClass="emplVO">
+		select A.*
+		from empl A, prjct_hist B
+		where B.prjct_hist_prjct = #flaw_prjct#
+		and A.empl_id = B.prjct_hist_empl
+	</select>
+	
+	<select id="getAllIpcr" resultClass="ipcrVO">
+		select * from ipcr
+	</select>
+	
+	<select id="getAllSttus" resultClass="sttusVO">
+		select * from sttus
+	</select>
+	
+	<select id="selectSttueBoardList" parameterClass="map" resultMap="flawMap">
+		   select B.*
+		   from (select rownum rnum, A.*
+		      from (select * from flaw
+		      	 where flaw_prjct = #prjct_id# and flaw_sttus = #flaw_sttus#
+		         <include refid="searchCondition"/>
+		         order by flaw_id desc) A) B
+		   <![CDATA[      
+		   where B.rnum <= #startCount# 
+		   and B.rnum >= #endCount#
+		   ]]>
+		   order by B.rnum desc
+	</select>
+	
+	<select id="selectListSechdul" parameterClass="map" resultClass="flawVO">
+		select * from flaw
+		where flaw_prjct = #flaw_prjct#
+		and flaw_chrg = #flaw_chrg#
+	</select>
+	
+</sqlMap>

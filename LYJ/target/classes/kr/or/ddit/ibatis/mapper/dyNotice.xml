@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dyNotice">
+	<typeAlias alias="DynmNoticeVO" type="kr.or.ddit.vo.DynmNoticeVO"/>
+	
+	<resultMap class="DynmNoticeVO" id="dyNoticeMap">
+		<result property="dynm_notice_id" column="dynm_notice_id" />
+		<result property="dynm_notice_nm" column="dynm_notice_nm" />
+		<result property="dynm_notice_empl" column="dynm_notice_empl" />
+		<result property="dynm_notice_cn" column="dynm_notice_cn" />
+		<result property="dynm_notice_inquiry" column="dynm_notice_inquiry" />
+		<result property="dynm_notice_date" column="dynm_notice_date" />
+		<result property="dynm_notice_delete" column="dynm_notice_delete" />
+		<result property="prjct_id" column="prjct_id" />
+	</resultMap>
+	
+	<sql id="searchCondition">
+		<dynamic prepend="WHERE">
+			<isNotEmpty property="search_keyword" open="(" close=")">
+				<isEqual property="search_keycode" compareValue="TOTAL">
+					   dynm_notice_nm like '%'||#search_keyword#||'%'
+					or dynm_notice_cn like '%'||#search_keyword#||'%'
+					or dynm_notice_empl like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="TITLE">
+					dynm_notice_nm like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="CONTENT">
+					dynm_notice_cn like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="WRITER">
+					dynm_notice_empl like '%'||#search_keyword#||'%'
+				</isEqual>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	<sql id="selectAll">
+		SELECT * FROM DYNM_NOTICE
+	</sql>
+	
+	<select id="noticeList" resultClass="DynmNoticeVO" parameterClass="map"  >
+		SELECT B.*
+		FROM(SELECT ROWNUM rnum, A.*
+			FROM(<include refid="selectAll"/>
+				WHERE DYNM_NOTICE_DELETE='y'
+				<include refid="searchCondition"/>) A) B
+		<![CDATA[
+			WHERE B.RNUM  <= #startCount# 
+	  		AND B.RNUM >= #endCount# 
+		]]>
+		ORDER BY B.RNUM DESC
+	</select>
+	
+	<select id="totalCount" parameterClass="map" resultClass="int">
+		SELECT count(DYNM_NOTICE_ID)
+		FROM DYNM_NOTICE
+		<include refid="searchCondition"/>
+	</select>
+	
+	<select id="noticeInfo" resultMap="dyNoticeMap" parameterClass="map">
+		SELECT * FROM DYNM_NOTICE
+		WHERE DYNM_NOTICE_ID = #dynm_notice_id#
+	</select>
+	
+	<insert id="insertNotice" parameterClass="DynmNoticeVO">
+		<selectKey keyProperty="notice_id"  resultClass="String">
+			SELECT NOTICE_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO NOTICE
+		(	
+			DYNM_NOTICE_ID,
+			DYNM_NOTICE_NM,
+			DYNM_NOTICE_EMPL,
+			DYNM_NOTICE_CN,
+			DYNM_NOTICE_INQUIRY,
+			DYNM_NOTICE_DATE,
+			DYNM_NOTICE_DELETE,
+			PRJCT_ID
+		)
+		 VALUES
+		 (
+			'dyNo'||lpad(dynm_notice_seq.nextval,3,0),
+			#dynm_notice_nm#,
+			#dynm_notice_empl#,
+			#dynm_notice_cn#,
+			0,
+			SYSDATE,
+			'y',
+			#prjct_id#
+		  )
+	</insert>
+	
+	<update id="hit" parameterClass="String">
+		UPDATE DYNM_NOTICE
+		SET DYNM_NOTICE_INQUIRY = DYNM_NOTICE_INQUIRY+1
+		WHERE DYNM_NOTICE_ID = #dynm_notice_id#
+	</update>
+	
+	<update id="updateNotice" parameterClass="DynmNoticeVO">
+		UPDATE DYNM_NOTICE
+		SET 
+			DYNM_NOTICE_NM =#dynm_notice_nm#,
+			DYNM_NOTICE_CN=#dynm_notice_cn#   ,
+			DYNM_NOTICE_DATE=SYSDATE
+		WHERE DYNM_NOTICE_ID = #dynm_notice_id#
+	</update>
+	
+	<update id="deleteNotice" parameterClass="map">
+		UPDATE DYNM_NOTICE
+		SET DYNM_NOTICE_DELETE='n'
+		WHERE DYNM_NOTICE_ID=#dynm_notice_id#
+	</update>
+	
+	
+
+</sqlMap>

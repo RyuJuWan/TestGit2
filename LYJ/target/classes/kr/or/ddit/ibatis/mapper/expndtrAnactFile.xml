@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="expndtrAnactFile">
+	<typeAlias alias="ExpFileVO" type="kr.or.ddit.vo.ExpndtrAnactFileVO"/>
+	
+	<statement id="expFileList" parameterClass="map" resultClass="ExpFileVO">
+		SELECT * FROM EXPNDTR_ANACT_FILE
+		WHERE EXPNDTR_ANACT_FILE_ID = #bo_id#
+	
+	</statement>
+	
+	<insert id="insertExpFile" parameterClass="ExpFileVO">
+		INSERT INTO EXPNDTR_ANACT_FILE
+			(	
+				EXPNDTR_ANACT_FILE_ID      ,
+				EXPNDTR_ANACT_FILE_NM      ,
+				EXPNDTR_ANACT_FILE_SAVE_NM ,
+				EXPNDTR_ANACT              ,
+				EXPNDTR_ANACT_FILE_TY      ,
+				EXPNDTR_ANACT_FILE_SIZE
+				)
+		VALUES
+			(	
+				'exF'||lpad(expndtr_anact_file_seq.nextval,3,0),
+				#expndtr_anact_file_nm#      ,
+				#expndtr_anact_file_save_nm# ,
+				#expndtr_anact#              ,
+				#expndtr_anact_file_ty#      ,
+				#expndtr_anact_file_size#
+			)	
+	</insert>
+	
+	<select id="expFileInfo" parameterClass="map" resultClass="ExpFileVO">
+		SELECT * FROM EXPNDTR_ANACT_FILE
+		WHERE EXPNDTR_ANACT =#bo_id#
+	</select>
+	
+	<update id="updateExnFile" parameterClass="ExpFileVO">
+		UPDATE EXPNDTR_ANACT_FILE
+		SET 
+			EXPNDTR_ANACT_FILE_NM = #expndtr_anact_file_nm#     ,
+			EXPNDTR_ANACT_FILE_SAVE_NM = #expndtr_anact_file_save_nm#,
+			EXPNDTR_ANACT=#expndtr_anact#              ,
+			EXPNDTR_ANACT_FILE_TY  =#expndtr_anact_file_ty#    ,
+			EXPNDTR_ANACT_FILE_SIZE=#expndtr_anact_file_size#
+		WHERE EXPNDTR_ANACT_FILE_ID = #expndtr_anact_file_id#
+	</update>
+
+	<select id="expFileListSize" resultClass="int">
+		SELECT COUNT(*) FROM EXPNDTR_ANACT_FILE
+	</select>	
+	
+	
+
+</sqlMap>

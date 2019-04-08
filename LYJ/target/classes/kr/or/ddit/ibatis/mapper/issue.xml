@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="issue">
+	<typeAlias alias="issueVO" type="kr.or.ddit.vo.IssueVO"/>
+	<typeAlias alias="emplVO" type="kr.or.ddit.vo.EmplVO"/>
+	<typeAlias alias="prjctVO" type="kr.or.ddit.vo.PrjctVO"/>
+	<typeAlias alias="riskVO" type="kr.or.ddit.vo.RiskVO"/>
+	<typeAlias alias="ipcrVO" type="kr.or.ddit.vo.IpcrVO"/>
+	<typeAlias alias="sttusVO" type="kr.or.ddit.vo.SttusVO"/>
+	
+	<resultMap class="issueVO" id="issueMap">
+		<result property="issue_id" column="issue_id"/>
+		<result property="issue_prjct" column="issue_prjct"/>
+		<result property="issue_risk" column="issue_risk"/>
+		<result property="issue_nm" column="issue_nm"/>
+		<result property="issue_regist_day" column="issue_regist_day"/>
+		<result property="issue_opetr_day" column="issue_opetr_day"/>
+		<result property="issue_compt" column="issue_compt"/>
+		<result property="issue_regist" column="issue_regist"/>
+		<result property="issue_chrg" column="issue_chrg"/>
+		<result property="issue_cn" column="issue_cn"/>
+		<result property="issue_ipcr" column="issue_ipcr"/>
+		<result property="issue_sttus" column="issue_sttus"/>
+		<result property="issue_delete" column="issue_delete"/>
+		<result property="issue_ipcrVO" column="issue_ipcr" select="ipcr.getIpcr_issue"/>
+		<result property="issue_sttusVO" column="issue_sttus" select="sttus.getSttus_issue"/>
+	</resultMap>
+	
+	<sql id="searchCondition">
+		<dynamic prepend="AND">
+			<isNotEmpty property="search_keyword" open="(" close=")">
+				<isEqual property="search_keycode" compareValue="TOTAL">
+			 		ISSUE_REGIST LIKE '%'||#search_keyword#||'%'
+			 		OR ISSUE_CHRG LIKE '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="CONTENT">
+					ISSUE_REGIST LIKE '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="WRITER">
+					ISSUE_CHRG LIKE '%'||#search_keyword#||'%'
+				</isEqual>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	<insert id="insertBoard" parameterClass="issueVO">
+		<selectKey keyProperty="issue_id" resultClass="string">
+	         SELECT 'isu'||lpad(ISSUE_SEQ.NEXTVAL,3,0) FROM DUAL
+	    </selectKey>
+		INSERT INTO ISSUE
+		(ISSUE_ID, ISSUE_PRJCT, ISSUE_RISK, ISSUE_NM, ISSUE_OPETR_DAY, ISSUE_COMPT, ISSUE_REGIST, ISSUE_CHRG, ISSUE_CN, ISSUE_IPCR, ISSUE_STTUS)
+		VALUES
+		(#issue_id#, #issue_prjct#, #issue_risk#, #issue_nm#, #issue_opetr_day#, #issue_compt#, #issue_regist#, #issue_chrg#, #issue_cn#, #issue_ipcr#, #issue_sttus#)
+	</insert>
+	
+	<update id="updateBoard" parameterClass="issueVO">
+		UPDATE ISSUE
+		SET ISSUE_NM = #issue_nm#,
+			ISSUE_REGIST_DAY = #issue_regist_day#,
+			ISSUE_OPETR_DAY = #issue_opetr_day#,
+			ISSUE_COMPT = #issue_compt#,
+			ISSUE_CHRG = #issue_chrg#,
+			ISSUE_CN = #issue_cn#,
+			ISSUE_IPCR = #issue_ipcr#,
+			ISSUE_STTUS = #issue_sttus#,
+			ISSUE_RISK = #issue_risk#
+		WHERE ISSUE_ID = #issue_id#
+	</update>
+	
+	<update id="deleteBoard" parameterClass="map">
+		UPDATE ISSUE
+		SET ISSUE_DELETE = #issue_delete#
+		WHERE ISSUE_ID = #issue_id#
+	</update>
+	
+	<select id="totalCount" parameterClass="map" resultClass="int">
+		SELECT COUNT(ISSUE_ID)
+		FROM ISSUE
+		WHERE 1=1
+		<include refid="searchCondition"/>
+	</select>
+	
+	<select id="sttusCount" parameterClass="map" resultClass="int">
+		SELECT COUNT(ISSUE_ID)
+		FROM ISSUE
+		WHERE ISSUE_STTUS =#issue_sttus#
+	</select>
+	
+	<select id="boardList" resultMap="issueMap" parameterClass="map">
+		   select B.*
+		   from (select rownum rnum, A.*
+		      from (select * from issue
+		      	 where issue_prjct = #prjct_id#
+		         <include refid="searchCondition"/>
+		         order by issue_id desc) A) B
+		   <![CDATA[      
+		   where B.rnum <= #startCount# 
+		   and B.rnum >= #endCount#
+		   ]]>
+		   order by issue_id desc
+	</select>
+	
+	<select id="selectListSchdul" resultClass="issueVO" parameterClass="map">
+		select * from issue 
+		where issue_prjct = #issue_prjct#
+		and issue_chrg = #issue_chrg#
+	</select>
+	
+	<select id="boardViewInfo" resultMap="issueMap" parameterClass="map">
+		select * from issue
+		where issue_id = #issue_id#
+	</select>
+	
+	<select id="getPrjctName" parameterClass="map" resultClass="string">
+		select prjct_nm
+		from prjct
+		where prjct_id = #issue_prjct#
+	</select>
+	
+	<select id="getPrjctEmpl" parameterClass="map" resultClass="emplVO">
+		select A.*
+		from empl A, prjct_hist B
+		where B.prjct_hist_prjct = #issue_prjct#
+		and A.empl_id = B.prjct_hist_empl
+	</select>
+	
+	<select id="getAllPrjct" resultClass="prjctVO">
+		select * from prjct
+	</select>
+	
+	<select id="getAllRisk" resultClass="riskVO" parameterClass="map">
+		select * from risk
+		where risk_prjct = #issue_prjct#
+	</select>
+	
+	<select id="getAllIpcr" resultClass="ipcrVO">
+		select * from ipcr
+	</select>
+	
+	<select id="getAllSttus" resultClass="sttusVO">
+		select * from sttus
+	</select>
+	
+	<select id="selectSttueBoardList" parameterClass="map" resultMap="issueMap">
+		   select B.*
+		   from (select rownum rnum, A.*
+		      from (select * from issue
+		      	 where issue_prjct = #prjct_id# and issue_sttus = #issue_sttus#
+		         <include refid="searchCondition"/>
+		         order by issue_id desc) A) B
+		   <![CDATA[      
+		   where B.rnum <= #startCount# 
+		   and B.rnum >= #endCount#
+		   ]]>
+		   order by B.rnum desc
+	</select>
+	
+</sqlMap>

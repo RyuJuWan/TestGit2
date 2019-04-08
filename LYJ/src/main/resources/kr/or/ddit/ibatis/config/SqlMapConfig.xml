@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMapConfig      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+<sqlMapConfig>
+	<settings cacheModelsEnabled="true" enhancementEnabled="true"
+		lazyLoadingEnabled="true" maxRequests="32" maxSessions="10"
+		maxTransactions="5" useStatementNamespaces="true" />
+	
+	<sqlMap resource="kr/or/ddit/ibatis/mapper/member.xml"/>
+	<sqlMap resource="kr/or/ddit/ibatis/mapper/prpsl.xml"/>
+	<sqlMap resource="kr/or/ddit/ibatis/mapper/pblanc.xml"/>
+	<sqlMap resource="kr/or/ddit/ibatis/mapper/rqpps.xml"/>
+	<sqlMap resource="kr/or/ddit/ibatis/mapper/sanctnline.xml"/>
+	<sqlMap resource="kr/or/ddit/ibatis/mapper/sanctnpapersty.xml"/>
+	<sqlMap resource="kr/or/ddit/ibatis/mapper/ofcps.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/dept.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/techClass.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/crqfc.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/prjct.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/prjctHist.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/role.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/hnfInpt.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/hnfInptFile.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/prpslFile.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/qna.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/frb.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/dyFrb.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/notice.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/dyNotice.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/dyRecsRoom.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/dyRecsRoomFile.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/issue.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/ipcr.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/dyWbs.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/flaw.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/risk.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/sttus.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/Answer.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/message.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/mtg.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/reprt.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/expndtrAnact.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/expndtrAnactFile.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/log.xml"/>
+   <sqlMap resource="kr/or/ddit/ibatis/mapper/reqreSpecf.xml"/>
+</sqlMapConfig>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

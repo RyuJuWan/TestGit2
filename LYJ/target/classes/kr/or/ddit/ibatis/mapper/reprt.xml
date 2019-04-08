@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="reprt">
+	<typeAlias alias="reprtVO" type="kr.or.ddit.vo.ReprtVO"/>
+	
+	<sql id="selectReprtAll">
+		SELECT *
+		 FROM REPRT
+	</sql>
+	
+	<sql id="searchCondition">
+		<dynamic prepend="AND">
+			<isNotEmpty property="search_keyword" open="(" close=")">
+				<isEqual property="search_keycode" compareValue="TOTAL">
+					   reprt_nm like '%'||#search_keyword#||'%'
+					OR reprt_cn like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="TITLE">
+					   reprt_nm like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="CONTENT">
+					   reprt_nm like '%'||#search_keyword#||'%'
+				</isEqual>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	<select id="totalCount" parameterClass="map" resultClass="int">
+		SELECT COUNT(*)
+		 FROM REPRT
+		WHERE REPRT_PRJCT = #prjct_id#
+		AND REPRT_TY_ID = #reprt_ty_id#
+		<include refid="searchCondition"/>
+	</select>
+	
+	<select id="reprtPageList" parameterClass="map" resultClass="reprtVO">
+		SELECT B.*
+		 FROM(SELECT ROWNUM rnum, A.*
+		  FROM(<include refid="selectReprtAll"/> 
+		  	   WHERE REPRT_TY_ID = #reprt_ty_id#
+		  	    <include refid="searchCondition"/>) A) B
+		<![CDATA[
+		WHERE B.RNUM <= #startCount#
+		 AND B.RNUM >= #endCount#
+		]]>
+		ORDER BY B.RNUM DESC
+	</select>
+	
+	<insert id="insertDy_reprt" parameterClass="reprtVO">
+		<selectKey keyProperty="reprt_id" resultClass="string">
+			SELECT 'rpt'||lpad(REPRT_SEQ.NEXTVAL,3,0) FROM DUAL
+		</selectKey>
+			INSERT INTO REPRT
+			 (REPRT_ID, REPRT_PRJCT, REPRT_NM, REPRT_CN, REPRT_EMPL, REPRT_TY_ID, REPRT_DATE,
+			  REPRT_START, REPRT_CLOS, REPRT_SANCTN_ID)
+			 VALUES
+			  (#reprt_id#, #reprt_prjct#, #reprt_nm#, #reprt_cn#, #reprt_empl#, #reprt_ty_id#, #reprt_date#,
+			   #reprt_start#, #reprt_clos#, #reprt_sanctn_id#)
+	</insert>
+	
+	<select id="reprtView" parameterClass="map" resultClass="reprtVO">
+		<include refid="selectReprtAll"/>
+		WHERE REPRT_ID = #reprt_id#
+	</select>
+	
+	<update id="updateDy_reprt" parameterClass="reprtVO">
+		UPDATE REPRT
+		 SET REPRT_NM = #reprt_nm#
+		   , REPRT_CN = #reprt_cn#
+		   , REPRT_START = #reprt_start#
+		   , REPRT_CLOS = #reprt_clos#
+		WHERE REPRT_ID = #reprt_id#
+	</update>
+	
+	<delete id="deleteReprt">
+		DELETE FROM REPRT
+		WHERE REPRT_ID = #reprt_id#
+	</delete>
+</sqlMap>

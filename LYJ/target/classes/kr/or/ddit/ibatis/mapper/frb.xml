@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="frb">
+	<typeAlias alias="frbVO" type="kr.or.ddit.vo.FrbVO"/>
+		<resultMap class="frbVO" id="frbMap">
+			<result property="frb_id" column="frb_id"/>
+			<result property="frb_nm" column="frb_nm"/>
+			<result property="frb_empl" column="frb_empl"/>
+			<result property="frb_cn" column="frb_cn"/>
+			<result property="frb_view" column="frb_view"/>
+			<result property="frb_day" column="frb_day"/>
+			<result property="frb_wrt" column="frb_wrt"/>
+		</resultMap>
+		
+	<sql id="searchCondition">
+		<dynamic prepend="AND">
+			<isNotEmpty property="search_keyword" open="(" close=")">
+				<isEqual property="search_keycode" compareValue="TOTAL">
+						frb_nm like '%'||#search_keyword#||'%'
+					OR frb_cn like '%'||#search_keyword#||'%'
+					OR frb_empl like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="TITLE">
+					frb_nm like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="CONTENT">
+					frb_cn like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="WRITER">
+					frb_empl like '%'||#search_keyword#||'%'
+				</isEqual>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+		
+	<sql id="selectAll">
+		select * from frb
+		where frb_wrt='y'
+	</sql>
+	
+	<select id="frbList" resultClass="frbVO" parameterClass="map">
+		select B.*
+		from(select ROWNUM rnum, A.*
+			from(<include refid="selectAll"/>
+				<include refid="searchCondition"/>) A) B
+				<![CDATA[
+			WHERE B.RNUM  <= #startCount# 
+	  		AND B.RNUM >= #endCount# 
+		]]>
+				order by B.rnum ASC
+	</select>
+	
+	<select id="totalCount" parameterClass="map" resultClass="int">
+		select count(frb_id)
+			from frb
+			where 1=1
+			<include refid="searchCondition"/>
+	</select>
+	
+	<insert id="insertFrb" parameterClass="frbVO">
+		INSERT INTO FRB
+		(frb_id, frb_nm, frb_empl, frb_cn, frb_view, frb_day, frb_wrt)
+		values
+		('frb'||lpad(frb_seq.nextval,3,0), #frb_nm#, #frb_empl#, #frb_cn#, 0, #frb_day#, 'y')
+	</insert>
+	
+	<select id="frbInfo" resultMap="frbMap" parameterClass="map">
+		<include refid="selectAll"/>
+		and frb_id = #frb_id#
+	</select>
+	
+	<update id="modifyFrb" parameterClass="frbVO">
+		update frb
+			set
+				frb_nm = #frb_nm#,
+				frb_cn = #frb_cn#
+				where frb_id = #frb_id#
+	</update>
+	
+	<update id="deleteFrb" parameterClass="map">
+		update frb
+			set
+			frb_wrt = 'n'
+			where frb_id = #frb_id#
+	</update>
+	
+	<update id="frbView" parameterClass="map">
+		update frb
+		   set
+		   	   frb_view = frb_view+1
+		 WHERE frb_id = #frb_id#	
+	</update>
+</sqlMap>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

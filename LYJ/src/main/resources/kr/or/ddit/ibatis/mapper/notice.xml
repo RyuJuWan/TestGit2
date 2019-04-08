@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="notice">
+	<typeAlias alias="noticeVO" type="kr.or.ddit.vo.NoticeVO"/>
+	
+	<resultMap class="noticeVO" id="noticeMap">
+		<result property="notice_id" column="notice_id" />
+		<result property="notice_nm" column="notice_nm" />
+		<result property="notice_empl" column="notice_empl" />
+		<result property="notice_cn" column="notice_cn" />
+		<result property="notice_inquiry" column="notice_inquiry" />
+		<result property="notice_date" column="notice_date" />
+		<result property="notice_delete" column="notice_delete" />
+	</resultMap>
+	
+	<sql id="searchCondition">
+		<dynamic prepend="AND">
+			<isNotEmpty property="search_keyword" open="(" close=")">
+				<isEqual property="search_keycode" compareValue="TOTAL">
+					   notice_nm like '%'||#search_keyword#||'%'
+					OR notice_cn like '%'||#search_keyword#||'%'
+					OR notice_empl like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="TITLE">
+					notice_nm like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="CONTENT">
+					notice_cn like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="WRITER">
+					notice_empl like '%'||#search_keyword#||'%'
+				</isEqual>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	<sql id="selectAll">
+		SELECT * FROM NOTICE
+	</sql>
+	
+	<select id="noticeList" resultClass="noticeVO" parameterClass="map"  >
+		SELECT B.*
+		FROM(SELECT ROWNUM rnum, A.*
+			FROM(<include refid="selectAll"/>
+				WHERE NOTICE_DELETE='n'
+				<include refid="searchCondition"/>) A) B
+		<![CDATA[
+			WHERE B.RNUM  <= #startCount# 
+	  		AND B.RNUM >= #endCount# 
+		]]>
+		ORDER BY B.RNUM DESC
+	</select>
+	
+	<select id="totalCount" parameterClass="map" resultClass="int">
+		SELECT count(notice_id)
+		FROM NOTICE
+		WHERE NOTICE_DELETE='n'
+		<include refid="searchCondition"/>
+	</select>
+	
+	<select id="noticeInfo" resultMap="noticeMap" parameterClass="map">
+		SELECT * FROM NOTICE
+		WHERE NOTICE_ID = #notice_id#
+	</select>
+	
+	<insert id="insertNotice" parameterClass="noticeVO">
+		<selectKey keyProperty="notice_id"  resultClass="String">
+			SELECT NOTICE_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO NOTICE
+		(	
+			NOTICE_ID      ,
+			NOTICE_NM      ,
+			NOTICE_EMPL    ,
+			NOTICE_CN      ,
+			NOTICE_DATE    ,
+			NOTICE_INQUIRY ,
+			NOTICE_DELETE  
+		)
+		 VALUES
+		 (
+			#notice_id#,
+			#notice_nm#,
+			#notice_empl#,
+			#notice_cn#,
+			#notice_date#,
+			#notice_inquiry#,
+			#notice_delete#
+		  )
+	</insert>
+	
+	<update id="hit" parameterClass="String">
+		UPDATE NOTICE
+		SET NOTICE_INQUIRY = NOTICE_INQUIRY+1
+		WHERE NOTICE_ID = #notice_id#
+	</update>
+	
+	<update id="updateNotice" parameterClass="noticeVO">
+		UPDATE NOTICE
+		SET 
+			NOTICE_NM =#notice_nm#,
+			NOTICE_EMPL =#notice_empl#,
+			NOTICE_CN=#notice_cn#   ,
+			NOTICE_DATE=#notice_date#
+		WHERE NOTICE_ID = #notice_id#
+	</update>
+	
+	<update id="deleteNotice" parameterClass="map">
+		UPDATE NOTICE
+		SET NOTICE_DELETE='y'
+		WHERE NOTICE_ID=#notice_id#
+	</update>
+	
+	
+
+</sqlMap>

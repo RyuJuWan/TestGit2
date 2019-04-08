@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="reqreSpecf">
+	<typeAlias alias="reqreSpecfVO" type="kr.or.ddit.vo.ReqreSpecfVO"/>
+	<typeAlias alias="sanctnLineVO" type="kr.or.ddit.vo.SanctnLineVO"/>
+	<typeAlias alias="sanctnPapersTyVO" type="kr.or.ddit.vo.SanctnPapersTyVO"/>
+	<typeAlias alias="prjctVO" type="kr.or.ddit.vo.PrjctVO"/>
+	
+	<resultMap class="reqreSpecfVO" id="reqreSpecfMap">
+		<result property="reqre_specf_id" column="reqre_specf_id" />
+		<result property="reqre_specf_nm" column="reqre_specf_nm" />
+		<result property="reqre_specf_prjct_id" column="reqre_specf_prjct_id" />
+		<result property="reqre_specf_empl" column="reqre_specf_empl" />
+		<result property="reqre_specf_cn" column="reqre_specf_cn" />
+		<result property="reqre_specf_wrting_date" column="reqre_specf_wrting_date" />
+		<result property="reqre_specf_sanctn_id" column="reqre_specf_sanctn_id" />
+		<result property="reqre_specf_papers_ty_id" column="reqre_specf_papers_ty_id" />
+	</resultMap>
+	
+	
+	<insert id="insertReqreSpecf" parameterClass="reqreSpecfVO">
+		<selectKey keyProperty="reqre_specf_id"  resultClass="String">
+			SELECT REQRE_SPECF_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO REQRE_SPECF
+		(
+			REQRE_SPECF_ID          ,
+			REQRE_SPECF_NM          ,
+			REQRE_SPECF_PRJCT_ID    ,
+			REQRE_SPECF_EMPL        ,
+			REQRE_SPECF_WRTING_DATE ,
+			REQRE_SPECF_CN          ,
+			REQRE_SPECF_SANCTN_ID   ,
+			REQRE_SPECF_PAPERS_TY_ID
+		)
+		VALUES
+		(
+			#reqre_specf_id#          ,
+			#reqre_specf_nm#          ,
+			#reqre_specf_prjct_id#    ,
+			#reqre_specf_empl#        ,
+			#reqre_specf_wrting_date# ,
+			#reqre_specf_cn#          ,
+			#reqre_specf_sanctn_id#   ,
+			#reqre_specf_papers_ty_id#
+		)
+	</insert>
+	
+	<select id="getPrjctName" parameterClass="map" resultClass="String">
+		SELECT PRJCT_NM FROM PRJCT
+		WHERE PRJCT_ID = #prjct_id#
+	</select>
+	
+	<select id="reqreSpecfInfo" parameterClass="map" resultMap="reqreSpecfMap">
+		SELECT * FROM REQRE_SPECF
+		WHERE REQRE_SPECF_PRJCT_ID = #prjct_id#
+	</select>
+	
+	<select id="reqreSpecfList" resultClass="reqreSpecfVO" >
+		SELECT * FROM REQRE_SPECF
+	</select>
+	
+	<update id="updateReqreSpecf" parameterClass="reqreSpecfVO">
+		UPDATE REQRE_SPECF
+		SET 
+			REQRE_SPECF_NM =#reqre_specf_nm#,
+			REQRE_SPECF_CN=#reqre_specf_cn#   ,
+			REQRE_SPECF_WRTING_DATE =#reqre_specf_wrting_date#,
+			REQRE_SPECF_SANCTN_ID=#reqre_specf_sanctn_id#,
+			REQRE_SPECF_PAPERS_TY_ID=#reqre_specf_papers_ty_id#
+		WHERE REQRE_SPECF_ID = #reqre_specf_id#
+	</update>
+	
+	<select id="getReqreSpecfId" parameterClass="map"  resultClass="String">
+		SELECT REQRE_SPECF_ID FROM REQRE_SPECF
+		WHERE REQRE_SPECF_PRJCT_ID = #prjct_id#
+	</select>
+	
+	
+	
+
+</sqlMap>

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dyWbs">
+	<typeAlias alias="WbsVO" type="kr.or.ddit.vo.WBSVO"/>
+	<typeAlias alias="WorkTyVO" type="kr.or.ddit.vo.WorkTyVO"/>
+	<typeAlias alias="SttusVO" type="kr.or.ddit.vo.SttusVO"/>
+	<typeAlias alias="PrjctVO" type="kr.or.ddit.vo.PrjctVO"/>
+	<typeAlias alias="IpcrVO" type="kr.or.ddit.vo.IpcrVO"/>
+	<typeAlias alias="SmlCatVO" type="kr.or.ddit.vo.SmlCatVO"/>
+	<typeAlias alias="EmplVO" type="kr.or.ddit.vo.EmplVO"/>
+	
+	<resultMap class="WbsVO" id="wbsMap">
+		<result property="rnum" column="rnum"/>
+		<result property="wbs_id" column="wbs_id"/>
+		<result property="wbs_prjct" column="wbs_prjct"/>
+		<result property="wbs_sml" column="wbs_sml"/>
+		<result property="wbs_work_nm" column="wbs_work_nm"/>
+		<result property="wbs_work_cn" column="wbs_work_cn"/>
+		<result property="wbs_work_id" column="wbs_work_id"/>
+		<result property="wbs_strt" column="wbs_strt"/>
+		<result property="wbs_compt" column="wbs_compt"/>
+		<result property="wbs_chrg" column="wbs_chrg"/>
+		<result property="wbs_progrs" column="wbs_progrs"/>
+		<result property="wbs_date" column="wbs_date"/>
+		<result property="wbs_strt_empl" column="wbs_strt_empl"/>
+		<result property="wbs_imp" column="wbs_imp"/>
+		<result property="wbs_sttusVO" column="wbs_progrs" select="sttus.getSttus_wbs"/>
+	</resultMap>
+
+	
+	<sql id="selectAll">
+		select *
+		from WBS
+	</sql>
+	
+	<sql id="searchCondition">
+		<dynamic prepend="WHERE">
+			<isNotEmpty property="search_keyword" open="(" close=")">
+				<isEqual property="search_keycode" compareValue="TOTAL">
+					WBS_WORK_NM like '%'||#search_keyword#||'%'
+					or WBS_WORK_CN like '%'||#search_keyword#||'%'
+					or WBS_CHRG like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="TITLE">
+					WBS_WORK_NM like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="CONTENT">
+					WBS_WORK_CN like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="WRITER"><!-- 담당자로 검색 -->
+					WBS_CHRG like '%'||#search_keyword#||'%'
+				</isEqual>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<!-- 리스트 가져오기 -->
+	<select id="boardList" resultMap="wbsMap" parameterClass="map">
+		select B.*
+		from(select ROWNUM rnum, A.*
+			from(<include refid="selectAll" />
+			 <include refid="searchCondition"/>) A) B
+			 <![CDATA[
+			WHERE B.RNUM  <= #startCount# 
+	  		AND B.RNUM >= #endCount# 
+		]]>
+		order by wbs_id DESC
+	</select>
+	
+	<select id="wbsListByPrjctID" resultClass="WbsVO" parameterClass="map">
+		select * from wbs
+		where wbs_prjct = #wbs_prjct#
+		and wbs_chrg = #wbs_chrg#
+	</select>
+	
+	<insert id="insertBoard" parameterClass="WbsVO">
+		<selectKey keyProperty="wbs_id" resultClass="string">
+	         select 'wb'||lpad(WBS_SEQ.nextval,3,0) from dual
+	    </selectKey>
+		INSERT INTO wbs
+		(
+		WBS_ID,
+		WBS_PRJCT,
+		WBS_SML,
+		WBS_WORK_NM,
+		WBS_WORK_CN,
+		WBS_WORK_ID,
+		WBS_STRT,
+		WBS_COMPT,
+		WBS_CHRG,
+		WBS_PROGRS,
+		WBS_DATE,
+		WBS_STRT_EMPL,
+		WBS_IMP
+		)
+		VALUES
+		(
+		#wbs_id#,
+		#wbs_prjct#,
+		#wbs_sml#,
+		#wbs_work_nm#,
+		#wbs_work_cn#,
+		#wbs_work_id#,
+		sysdate,
+		#wbs_compt#,
+		#wbs_chrg#,
+		#wbs_progrs#,
+		#wbs_date#,
+		#wbs_strt_empl#,
+		#wbs_imp#
+		)
+	</insert>
+	
+	<update id="updateBoard" parameterClass="WbsVO">
+		UPDATE WBS
+		SET 
+			WBS_SML=#wbs_sml#,
+			WBS_WORK_NM=#wbs_work_nm#,
+			WBS_WORK_CN=#wbs_work_cn#,
+			WBS_STRT=SYSDATE,
+			WBS_COMPT=#wbs_compt#,
+			WBS_CHRG=#wbs_chrg#,
+			WBS_PROGRS=#wbs_progrs#,
+			WBS_DATE=#wbs_date#,
+			WBS_STRT_EMPL=#wbs_strt_empl#,
+			WBS_IMP=#wbs_imp#
+		WHERE WBS_ID = #wbs_id#
+	</update>
+	
+	<select id="totalCount" parameterClass="map" resultClass="int">
+		SELECT COUNT(WBS_ID)
+		FROM WBS
+		<include refid="searchCondition"/>
+	</select>
+	
+	<select id="wbsSttusCount" parameterClass="map" resultClass="int">
+		SELECT COUNT(WBS_ID)
+		FROM WBS
+		WHERE WBS_PROGRS =#wbs_progrs#
+	</select>
+	
+	<select id="boardViewInfo" resultClass="WbsVO" parameterClass="map">
+		select * from wbs
+		where wbs_id = #wbs_id#
+	</select>
+	
+	
+	
+	
+	<select id="getPrjctName" parameterClass="map" resultClass="string">
+		select prjct_nm
+		from prjct
+		where prjct_id = #wbs_prjct#
+	</select>
+	
+	
+	<select id="getPrjctEmpl" parameterClass="map" resultClass="EmplVO">
+		select A.*
+		from empl A, prjct_hist B
+		where B.prjct_hist_prjct = #wbs_prjct#
+		and A.empl_id = B.prjct_hist_empl
+	</select>
+	
+	<select id="getAllIpcr" resultClass="ipcrVO">
+		select * from ipcr
+	</select>
+	
+	<select id="getAllSttus" resultClass="sttusVO">
+		select * from sttus
+	</select>
+	
+	<select id="getSmlCat" resultClass="SmlCatVO">
+		select * from SML_CAT
+	</select>
+	
+	<select id="getWorkTy" resultClass="WorkTyVO">
+		select * from WORK_TY
+	</select>
+	
+	
+<!-- 	<select id="selectSttueBoardList" parameterClass="map" resultMap="wbsMap"> -->
+<!-- 		   select B.* -->
+<!-- 		   from (select rownum rnum, A.* -->
+<!-- 		      from (select * from wbs -->
+<!-- 		      	 where wbs_prjct = #prjct_id# and wbs_sttus = #wbs_sttus# -->
+<!-- 		         <include refid="searchCondition"/> -->
+<!-- 		         order by wbs_id desc) A) B -->
+<!-- 		   <![CDATA[       -->
+<!-- 		   where B.rnum <= #startCount#  -->
+<!-- 		   and B.rnum >= #endCount# -->
+<!-- 		   ]]> -->
+<!-- 		   order by B.rnum desc -->
+<!-- 	</select> -->
+
+
+	
+</sqlMap>

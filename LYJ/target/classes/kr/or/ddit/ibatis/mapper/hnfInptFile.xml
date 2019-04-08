@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="hnfInptFile">
+	<typeAlias alias="hnfInptFileVO" type="kr.or.ddit.vo.HnfInptFileVO"/>
+	
+	<statement id="hnfInptFileList" parameterClass="map" resultClass="hnfInptFileVO">
+		select * from HNF_INPT_FILE where HNF_INPT = #bo_id#
+	</statement>
+	
+	<insert id="insertHnfInptFile" parameterClass="hnfInptFileVO">
+		<selectKey keyProperty="hnf_inpt_file_id">
+			SELECT HNF_INPT_FILE_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO HNF_INPT_FILE
+			(HNF_INPT_FILE_ID, HNF_INPT_FILE_NM, HNF_INPT_FILE_SAVE_NM, HNF_INPT, HNF_INPT_FILE_TY,
+			HNF_INPT_FILE_SIZE)
+		VALUES
+			(#hnf_inpt_file_id#, #hnf_inpt_file_nm#, #hnf_inpt_file_save_nm#, #hnf_inpt#, #hnf_inpt_file_ty#,
+			#hnf_inpt_file_size#)	
+	</insert>
+	
+	<update id="updateHnfInptFile" parameterClass="hnfInptFileVO">
+		UPDATE HNF_INPT_FILE
+		SET HNF_INPT_FILE_NM = #hnf_inpt_file_nm#,
+			HNF_INPT_FILE_SAVE_NM = #hnf_inpt_file_save_nm#,
+			HNF_INPT_FILE_TY = #hnf_inpt_file_ty#,
+			HNF_INPT_FILE_SIZE = #hnf_inpt_file_size#
+		WHERE HNF_INPT_FILE_ID = #hnf_inpt_file_id#
+	</update>
+	
+	<select id="hnfInptFileInfo" parameterClass="map" resultClass="hnfInptFileVO">
+		SELECT * 
+		  FROM HNF_INPT_FILE
+		 WHERE HNF_INPT = #bo_id#
+	</select>
+	
+	<select id="hnfInptFileListSize" resultClass="int">
+		SELECT COUNT(*) FROM HNF_INPT_FILE
+	</select>
+</sqlMap>

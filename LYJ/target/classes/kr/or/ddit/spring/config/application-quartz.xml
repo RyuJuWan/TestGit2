@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:p="http://www.springframework.org/schema/p"
+   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+
+   <!-- 
+      스케줄링
+         Job      : Trigger에 설정된 맞춰 실행되어야하는 비지니스 로직 단위
+         Trigger : 실행되어야 하는 시간   
+         SchedulerFactory : 스케줄링을 제어(시작, 일시정지, 재시작, 종료)
+    -->
+    <bean id="savePrjctLogJob" class="org.springframework.scheduling.quartz.JobDetailBean" 
+    	p:jobClass="kr.or.ddit.quartz.SavePrjctLogJob"
+    	p:applicationContextJobDataKey="applicationContext">
+    </bean>
+    <bean id="savePrjctLogCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean"
+    	p:cronExpression="0 0/1 * * * ?"
+    	p:jobDetail-ref="savePrjctLogJob">
+    </bean>
+<!--     <bean id="savePrjctLogJob2" class="org.springframework.scheduling.quartz.JobDetailBean"  -->
+<!--     	p:jobClass="kr.or.ddit.quartz.SavePrjctLogJob2" -->
+<!--     	p:applicationContextJobDataKey="applicationContext"> -->
+<!--     </bean> -->
+<!--     <bean id="savePrjctLogCronTrigger2" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean" -->
+<!--     	p:cronExpression="0 0/1 * * * ?" -->
+<!--     	p:jobDetail-ref="savePrjctLogJob2"> -->
+<!--     </bean> -->
+    
+    <bean id="schedulerFactory" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+    	<property name="triggers">
+    		<list>
+    			<ref bean="savePrjctLogCronTrigger" />
+<!--     			<ref bean="savePrjctLogCronTrigger2" /> -->
+    		</list>
+    	</property>
+    </bean>
+</beans>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="expndtrAnact">
+	<typeAlias alias="expndtrAnactVO" type="kr.or.ddit.vo.ExpndtrAnactVO"/>
+	
+	<resultMap class="expndtrAnactVO" id="expndtrAnactMap">
+		<result property="expndtr_anact_id" column="expndtr_anact_id" />
+		<result property="expndtr_anact_nm" column="expndtr_anact_nm" />
+		<result property="expndtr_anact_prjct_id" column="expndtr_anact_prjct_id" />
+		<result property="expndtr_anact_wrter" column="expndtr_anact_wrter" />
+		<result property="expndtr_anact_date" column="expndtr_anact_date" />
+		<result property="expndtr_anact_sanctn_id" column="expndtr_anact_sanctn_id" />
+		<result property="expndtr_anact_papers_ty_id" column="expndtr_anact_papers_ty_id" />
+		<result property="expndtr_anact_expndtr" column="expndtr_anact_expndtr" />
+		<result property="expndtr_anact_amount" column="expndtr_anact_amount" />
+		<result property="expndtr_anact_cn" column="expndtr_anact_cn" />
+	</resultMap>
+	
+	<sql id="searchCondition">
+		<dynamic prepend="WHERE">
+			<isNotEmpty property="search_keyword" open="(" close=")">
+				<isEqual property="search_keycode" compareValue="TOTAL">
+					   expndtr_anact_id like '%'||#search_keyword#||'%'
+					OR expndtr_anact_nm like '%'||#search_keyword#||'%'
+					OR expndtr_anact_wrter like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="TITLE">
+					expndtr_anact_id like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="CONTENT">
+					expndtr_anact_nm like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="WRITER">
+					expndtr_anact_wrter like '%'||#search_keyword#||'%'
+				</isEqual>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	<sql id="selectAll">
+		SELECT * FROM EXPNDTR_ANACT
+	</sql>
+	
+	<select id="expndtrAnactList" resultClass="expndtrAnactVO" >
+		SELECT B.*
+		FROM(SELECT ROWNUM rnum, A.*
+			FROM(<include refid="selectAll"/>
+			<include refid="searchCondition"/>
+			) A) B
+		<![CDATA[
+			WHERE B.RNUM  <= #startCount# 
+	  		AND B.RNUM >= #endCount# 
+		]]>
+		ORDER BY B.RNUM DESC
+	</select>
+	
+	<select id="totalCount" parameterClass="map" resultClass="int">
+		SELECT count(expndtr_anact_id)
+		FROM EXPNDTR_ANACT
+		<include refid="searchCondition"/>
+	</select>
+	
+	<select id="expndtrAnactInfo" resultMap="expndtrAnactMap" parameterClass="map">
+		SELECT * FROM EXPNDTR_ANACT
+		WHERE EXPNDTR_ANACT_ID = #expndtr_anact_id#
+	</select>
+	
+	<insert id="insertExpndtrAnact" parameterClass="expndtrAnactVO">
+		<selectKey keyProperty="expndtr_anact_id"  resultClass="String">
+			SELECT EXPNDTR_ANACT_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO EXPNDTR_ANACT
+		(	
+			EXPNDTR_ANACT_ID          ,
+			EXPNDTR_ANACT_NM          ,
+			EXPNDTR_ANACT_PRJCT_ID    ,
+			EXPNDTR_ANACT_WRTER       ,
+			EXPNDTR_ANACT_DATE        ,
+			EXPNDTR_ANACT_SANCTN_ID   ,
+			EXPNDTR_ANACT_PAPERS_TY_ID,
+			EXPNDTR_ANACT_AMOUNT      ,
+			EXPNDTR_ANACT_CN
+		)
+		 VALUES
+		 (
+			#expndtr_anact_id#          ,
+			#expndtr_anact_nm#          ,
+			#expndtr_anact_prjct_id#    ,
+			#expndtr_anact_wrter#       ,
+			#expndtr_anact_date#        ,
+			#expndtr_anact_sanctn_id#   ,
+			#expndtr_anact_papers_ty_id#,
+			#expndtr_anact_amount#      ,
+			#expndtr_anact_cn#
+		  )
+	</insert>
+	
+	<update id="updateExpndtrAnact" parameterClass="expndtrAnactVO">
+		UPDATE EXPNDTR_ANACT
+		SET
+			EXPNDTR_ANACT_NM =#expndtr_anact_nm#,
+			EXPNDTR_ANACT_WRTER =#expndtr_anact_wrter#,
+			EXPNDTR_ANACT_DATE=#expndtr_anact_date#,
+			EXPNDTR_ANACT_SANCTN_ID=#expndtr_anact_sanctn_id#   ,
+			EXPNDTR_ANACT_PAPERS_TY_ID=#expndtr_anact_papers_ty_id#   ,
+			EXPNDTR_ANACT_AMOUNT=#expndtr_anact_amount#,
+			EXPNDTR_ANACT_CN=#expndtr_anact_cn#   
+		WHERE EXPNDTR_ANACT_ID = #expndtr_anact_id#
+	</update>
+	
+	<delete id="deleteExpndtrAnact" parameterClass="map">
+		DELETE FROM EXPNDTR_ANACT
+		WHERE EXPNDTR_ANACT_ID = #expndtr_anact_id#
+	</delete>
+	
+	
+	
+
+</sqlMap>

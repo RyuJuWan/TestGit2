@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="prpsl">
+	<typeAlias alias="PrpslVO" type="kr.or.ddit.vo.PrpslVO"/>
+	<typeAlias alias="prjctVO" type="kr.or.ddit.vo.PrjctVO"/>
+	<typeAlias alias="sanctnLineVO" type="kr.or.ddit.vo.SanctnLineVO"/>
+	<typeAlias alias="sanctnPapersTyVO" type="kr.or.ddit.vo.SanctnPapersTyVO"/>
+	
+	
+	<resultMap class="PrpslVO" id="prpslMap">
+		<result property="prpsl_id" column="prpsl_id"/>
+		<result property="prpsl_nm" column="prpsl_nm"/>
+		<result property="prpsl_rqpps_id" column="prpsl_rqpps_id"/>
+		<result property="prpsl_wrting_date" column="prpsl_wrting_date"/>
+		<result property="prpsl_cn" column="prpsl_cn"/>
+		<result property="prpsl_prjct_start" column="prpsl_prjct_start"/>
+		<result property="prpsl_prjct_clos" column="prpsl_prjct_clos"/>
+		<result property="prpsl_sanctn_id" column="prpsl_sanctn_id"/>
+		<result property="prpsl_papers_ty" column="prpsl_papers_ty"/>
+	</resultMap>
+	
+	<sql id="selectAll">
+		select *
+		from prpsl
+	</sql>
+	
+	<sql id="searchCondition">
+		<dynamic prepend="WHERE">
+			<isNotEmpty property="search_keyword" open="(" close=")">
+				<isEqual property="search_keycode" compareValue="TOTAL">
+					prpsl_nm like '%'||#search_keyword#||'%'
+					or prpsl_cn like '%'||#search_keyword#||'%'
+					or prpsl_empl like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="TITLE">
+					prpsl_nm like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="CONTENT">
+					prpsl_cn like '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="WRITER">
+					prpsl_empl like '%'||#search_keyword#||'%'
+				</isEqual>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<!-- 리스트 가져오기 -->
+	<select id="prpslList" resultClass="PrpslVO"
+		parameterClass="map">
+		select B.*
+		from(select ROWNUM rnum, A.*
+			from(<include refid="selectAll" />
+			 <include refid="searchCondition"/>) A) B
+		<![CDATA[
+			where B.rnum <= #startCount#
+				and B.rnum >= #endCount#
+		]]>
+		order by B.rnum DESC
+	</select>
+	
+	<select id="prpslInfo" resultMap="prpslMap" parameterClass="map">
+		<include refid="selectAll"/>
+		where prpsl_id = #prpsl_id#
+	</select>
+	
+	<select id="totalCount" parameterClass="map" resultClass="int">
+		select count(prpsl_id)
+			from prpsl
+		<include refid="searchCondition"/>
+	</select>
+	
+	<delete id="prpslDelete" parameterClass="map">
+		delete from prpsl
+			where prpsl_id=#prpsl_id#
+	</delete>
+	
+	<insert id="prpslInsert" parameterClass="PrpslVO">
+		INSERT INTO prpsl
+		(	prpsl_id,
+			prpsl_nm,
+			prpsl_rqpps_id,
+			prpsl_empl,
+			prpsl_wrting_date,
+			prpsl_prjct_start,
+			prpsl_prjct_clos,
+			prpsl_sanctn_id,
+			prpsl_papers_ty,
+			prpsl_cn
+		)
+		 values
+		 (	'pr'||lpad(prpsl_seq.nextval,3,0),
+			#prpsl_nm#,
+			#prpsl_rqpps_id#,
+			#prpsl_empl#,
+			#prpsl_wrting_date#,
+			#prpsl_prjct_start#,
+			#prpsl_prjct_clos#,
+			#prpsl_sanctn_id#,
+			#prpsl_papers_ty#,
+			#prpsl_cn#
+		)
+	</insert>
+	<update id="prpslModify" parameterClass="PrpslVO">
+		update prpsl
+			set
+			prpsl_nm=#prpsl_nm#,
+			prpsl_rqpps_id=#prpsl_rqpps_id#,
+			prpsl_empl=#prpsl_empl#,
+			prpsl_wrting_date=#prpsl_wrting_date#,
+			prpsl_prjct_start=#prpsl_prjct_start#,
+			prpsl_prjct_clos=#prpsl_prjct_clos#,
+			prpsl_sanctn_id=#prpsl_sanctn_id#,
+			prpsl_papers_ty=#prpsl_papers_ty#,
+			prpsl_cn=#prpsl_cn#
+			where prpsl_id = #prpsl_id#
+	</update>	
+	
+	<select id="getPrpslId" resultClass="PrpslVO" >
+		SELECT PRPSL_ID,PRPSL_NM
+		 FROM PRPSL
+	</select>
+
+	
+</sqlMap>

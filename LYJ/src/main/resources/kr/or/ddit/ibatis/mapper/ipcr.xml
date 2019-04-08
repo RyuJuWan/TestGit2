@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ipcr">
+	<typeAlias alias="ipcrVO" type="kr.or.ddit.vo.IpcrVO"/>	
+	
+	<statement id="getIpcr_issue" resultClass="ipcrVO">
+		select * from ipcr
+		where ipcr_id = #issue_ipcr#
+	</statement>
+	<statement id="getIpcr_risk" resultClass="ipcrVO">
+		select * from ipcr
+		where ipcr_id = #risk_ipcr#
+	</statement>
+	<statement id="getIpcr_flaw" resultClass="ipcrVO">
+		select * from ipcr
+		where ipcr_id = #flaw_ipcr#
+	</statement>
+</sqlMap>
